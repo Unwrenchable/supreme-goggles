@@ -1,0 +1,117 @@
+import { useMemo } from 'react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { 
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  TorusWalletAdapter,
+  LedgerWalletAdapter,
+} from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
+
+/**
+ * Solana Wallet Configuration
+ * 
+ * This configuration sets up the Solana wallet adapters for the application.
+ * It provides support for popular Solana wallets including:
+ * - Phantom - Most popular Solana wallet
+ * - Solflare - Feature-rich Solana wallet
+ * - Torus - Social login wallet
+ * - Ledger - Hardware wallet support
+ * 
+ * Mobile Support:
+ * - Phantom Mobile via WalletConnect
+ * - Solflare Mobile via WalletConnect
+ * - Other WalletConnect-enabled Solana wallets
+ */
+
+/**
+ * Get the Solana network based on environment configuration
+ */
+export const getSolanaNetwork = (): WalletAdapterNetwork => {
+  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
+  
+  switch (network) {
+    case 'mainnet-beta':
+    case 'mainnet':
+      return WalletAdapterNetwork.Mainnet;
+    case 'testnet':
+      return WalletAdapterNetwork.Testnet;
+    case 'devnet':
+    default:
+      return WalletAdapterNetwork.Devnet;
+  }
+};
+
+/**
+ * Get the Solana RPC endpoint
+ * Uses custom endpoint if provided, otherwise defaults to public endpoints
+ */
+export const getSolanaEndpoint = (): string => {
+  const customEndpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT;
+  if (customEndpoint) {
+    return customEndpoint;
+  }
+  
+  const network = getSolanaNetwork();
+  return clusterApiUrl(network);
+};
+
+/**
+ * Hook to get configured Solana wallet adapters
+ * This should be used within the WalletProvider context
+ */
+export const useSolanaWallets = () => {
+  const network = getSolanaNetwork();
+  
+  const wallets = useMemo(
+    () => [
+      // Phantom - Most popular Solana wallet with mobile support
+      new PhantomWalletAdapter(),
+      
+      // Solflare - Feature-rich Solana wallet
+      new SolflareWalletAdapter({ network }),
+      
+      // Torus - Social login wallet
+      new TorusWalletAdapter(),
+      
+      // Ledger - Hardware wallet support
+      new LedgerWalletAdapter(),
+    ],
+    [network]
+  );
+  
+  return wallets;
+};
+
+/**
+ * Check if Solana is configured and ready to use
+ */
+export const isSolanaConfigured = (): boolean => {
+  // In development/demo mode, Solana is always available
+  const useProduction = process.env.NEXT_PUBLIC_USE_PRODUCTION_MODE === 'true';
+  if (!useProduction) {
+    return true;
+  }
+  
+  // In production, check if contract address is configured and valid
+  const contractAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS;
+  return !!(contractAddress && contractAddress.trim());
+};
+
+/**
+ * Get Solana explorer URL for a transaction
+ */
+export const getSolanaExplorerUrl = (signature: string): string => {
+  const network = getSolanaNetwork();
+  const cluster = network === WalletAdapterNetwork.Mainnet ? '' : `?cluster=${network}`;
+  return `https://explorer.solana.com/tx/${signature}${cluster}`;
+};
+
+/**
+ * Get Solana explorer URL for an address
+ */
+export const getSolanaAddressExplorerUrl = (address: string): string => {
+  const network = getSolanaNetwork();
+  const cluster = network === WalletAdapterNetwork.Mainnet ? '' : `?cluster=${network}`;
+  return `https://explorer.solana.com/address/${address}${cluster}`;
+};
