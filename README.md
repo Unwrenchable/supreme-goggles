@@ -19,6 +19,7 @@ A **Web3 naming platform** supporting **Solana and EVM chains** - Register ANY d
 | [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) | **Quick Reference** - "Do I have frontend AND backend?" - YES! |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | **Full-stack architecture guide** - Frontend, Backend & Blockchain explained |
 | [DEPLOYMENT_LOGS.md](./DEPLOYMENT_LOGS.md) | **Monitoring & Logs** - How to check deployment health and troubleshoot issues |
+| [CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md) | **Console Warnings** - Explanation and fixes for wallet-related console messages |
 | [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
 | [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
 | [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **How to add new blockchains** (15-minute guide) |
