@@ -459,6 +459,62 @@ To move from demo mode to production with real blockchain interactions:
 - Join our Discord (Coming soon)
 - Open an issue on GitHub
 
+## ❓ Frequently Asked Questions
+
+### Can I deploy this on my own custom URL?
+
+**Yes!** You can absolutely deploy this on your own custom domain like `yourplatform.com`. Here's how:
+
+1. Deploy the application to any hosting platform (Vercel, Netlify, your own server, etc.)
+2. Purchase a domain name from any registrar (GoDaddy, Namecheap, etc.)
+3. Connect your custom domain to your hosting platform (all major platforms make this easy)
+4. Your platform will be live at your custom URL!
+
+See the [Deployment section](#-deployment) above for detailed instructions.
+
+### Do I need to deploy to "Web 2" first?
+
+**There's no two-step process!** When you deploy this Next.js application to ANY hosting platform (whether it's Vercel, Netlify, or your own server), you ARE deploying to Web2 infrastructure. That's the only deployment step needed for the frontend.
+
+The Web3 part (blockchain interactions, smart contracts) happens automatically when users connect their wallets through your hosted website. You don't separately "deploy to Web3."
+
+**Simple workflow:**
+1. Deploy the web app to a hosting platform → This IS the "Web2" deployment
+2. Users access your platform via your URL
+3. Users connect Web3 wallets → Web3 functionality happens automatically
+4. Done!
+
+### What's the difference between the platform URL and domain names users register?
+
+- **Your platform URL** (e.g., `yourplatform.com`): This is where you host THIS application - your Web3 naming service platform
+- **User domain names** (e.g., `alice.fizz`, `bob.eth`): These are the Web3 identities users register THROUGH your platform
+
+Your platform is the service that allows users to register and manage their Web3 names.
+
+### Can I use the default Vercel/Netlify URL instead of buying a domain?
+
+**Yes!** All hosting platforms provide free subdomains:
+- Vercel: `your-app.vercel.app`
+- Netlify: `your-app.netlify.app`
+- Others: Similar patterns
+
+You can launch with these free URLs and add a custom domain later whenever you want.
+
+### Do I need a smart contract deployed to test the platform?
+
+**No!** The platform includes mock data so you can test the full user experience without deploying any contracts. When you're ready for production, you can deploy the smart contract and update the environment variables.
+
+### How much does deployment cost?
+
+- **Vercel/Netlify:** Free tier available (sufficient for most projects)
+- **Self-hosted:** Cost of your VPS ($5-20/month typically)
+- **Custom domain:** $10-15/year (optional)
+- **WalletConnect Project ID:** Free
+
+### Can I deploy without Web3 functionality?
+
+The application is designed as a Web3 naming platform, but you can deploy it and explore the UI/UX without connecting real smart contracts (it will use mock data). However, the core purpose is Web3 functionality.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to:
