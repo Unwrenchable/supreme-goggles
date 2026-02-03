@@ -1,8 +1,11 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useState, useEffect } from 'react';
+import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
+import { BrowserProvider } from 'ethers';
+import { updateDomainRecordsOnChain, getDomainRecordsFromChain, formatTransactionError } from '@/lib/blockchain';
+import { USE_PRODUCTION_MODE } from '@/lib/contract';
 
 interface DomainRecord {
   type: string;
@@ -13,18 +16,73 @@ export default function ManageDomainPage() {
   const params = useParams();
   const router = useRouter();
   const { address, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
   
   const domain = params.domain as string;
+  const domainName = domain?.split('.')[0] || '';
+  const extension = domain ? '.' + domain.split('.').slice(1).join('.') : '';
   
-  const [records, setRecords] = useState<DomainRecord[]>([
-    { type: 'wallet', value: '0x1234567890123456789012345678901234567890' },
-    { type: 'ipfs', value: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG' },
-    { type: 'website', value: 'https://example.com' },
-  ]);
+  const [records, setRecords] = useState<DomainRecord[]>([]);
+  const [isLoadingRecords, setIsLoadingRecords] = useState(true);
   
   const [newRecordType, setNewRecordType] = useState('');
   const [newRecordValue, setNewRecordValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveMessage, setSaveMessage] = useState('');
+  const [txHash, setTxHash] = useState('');
+
+  // Load domain records on mount
+  useEffect(() => {
+    const loadRecords = async () => {
+      if (!domain || !extension) return;
+      
+      setIsLoadingRecords(true);
+      
+      try {
+        // Try to load records from blockchain if in production mode
+        if (USE_PRODUCTION_MODE && publicClient) {
+          const recordTypes = ['wallet', 'ipfs', 'website', 'email', 'twitter', 'github'];
+          const loadedRecords: DomainRecord[] = [];
+          
+          for (const type of recordTypes) {
+            const value = await getDomainRecordsFromChain(
+              domainName,
+              extension,
+              type,
+              publicClient as any
+            );
+            
+            if (value) {
+              loadedRecords.push({ type, value });
+            }
+          }
+          
+          setRecords(loadedRecords);
+        } else {
+          // Use mock data in demo mode
+          setRecords([
+            { type: 'wallet', value: address || '0x1234567890123456789012345678901234567890' },
+            { type: 'ipfs', value: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG' },
+            { type: 'website', value: 'https://example.com' },
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to load records:', error);
+        // Fallback to mock data
+        setRecords([
+          { type: 'wallet', value: address || '0x1234567890123456789012345678901234567890' },
+          { type: 'ipfs', value: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG' },
+          { type: 'website', value: 'https://example.com' },
+        ]);
+      } finally {
+        setIsLoadingRecords(false);
+      }
+    };
+    
+    loadRecords();
+  }, [domain, extension, domainName, publicClient, address]);
 
   const handleAddRecord = () => {
     if (newRecordType && newRecordValue) {
@@ -39,11 +97,58 @@ export default function ManageDomainPage() {
   };
 
   const handleSave = async () => {
+    if (!isConnected) {
+      setSaveStatus('error');
+      setSaveMessage('Please connect your wallet');
+      return;
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
+    setSaveStatus('idle');
+    setSaveMessage('');
+    setTxHash('');
+    
+    try {
+      // Production mode: Save records to blockchain
+      if (USE_PRODUCTION_MODE && walletClient) {
+        const provider = new BrowserProvider(walletClient);
+        const signer = await provider.getSigner();
+        
+        // Update each record on-chain
+        for (const record of records) {
+          const result = await updateDomainRecordsOnChain(
+            domainName,
+            extension,
+            record.type,
+            record.value,
+            signer
+          );
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Failed to update record');
+          }
+          
+          if (result.transactionHash) {
+            setTxHash(result.transactionHash);
+          }
+        }
+        
+        setSaveStatus('success');
+        setSaveMessage('Records updated successfully on blockchain!');
+      } 
+      // Demo mode: Simulate save
+      else {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setSaveStatus('success');
+        setSaveMessage('Records updated successfully! (Demo mode)');
+      }
+    } catch (error: any) {
+      console.error('Save failed:', error);
+      setSaveStatus('error');
+      setSaveMessage(formatTransactionError(error));
+    } finally {
       setIsSaving(false);
-      alert('Records updated successfully!');
-    }, 1500);
+    }
   };
 
   if (!isConnected) {
@@ -75,6 +180,20 @@ export default function ManageDomainPage() {
         </button>
 
         <h1 className="text-4xl font-bold text-white mb-8">Manage Domain</h1>
+        
+        {!USE_PRODUCTION_MODE && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-amber-400 text-xl">ℹ️</span>
+              <div>
+                <p className="text-amber-400 font-semibold mb-1">Demo Mode</p>
+                <p className="text-amber-300 text-sm">
+                  Record updates are simulated. Enable production mode to save records on-chain.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Domain Info */}
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-8 mb-8">
@@ -100,82 +219,140 @@ export default function ManageDomainPage() {
           </div>
         </div>
 
+        {/* Save Status Messages */}
+        {saveStatus === 'success' && (
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 text-xl">✓</span>
+              <div className="flex-1">
+                <p className="text-emerald-400 font-semibold mb-1">{saveMessage}</p>
+                {txHash && (
+                  <a 
+                    href={`https://etherscan.io/tx/${txHash}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 text-xs underline hover:text-emerald-300"
+                  >
+                    View transaction ↗
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {saveStatus === 'error' && saveMessage && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-red-400 text-xl">✕</span>
+              <div>
+                <p className="text-red-400 font-semibold mb-1">Save Failed</p>
+                <p className="text-red-300 text-sm">{saveMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Domain Records */}
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-8 mb-8">
           <h3 className="text-2xl font-bold text-white mb-6">Domain Records</h3>
           
-          <div className="space-y-4 mb-6">
-            {records.map((record, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-4 bg-black/30 border border-purple-500/20 rounded-lg p-4"
-              >
-                <div className="flex-1">
-                  <p className="text-purple-400 text-sm font-semibold mb-1">{record.type}</p>
-                  <p className="text-white font-mono text-sm break-all">{record.value}</p>
-                </div>
-                <button
-                  onClick={() => handleDeleteRecord(idx)}
-                  className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-purple-500/30 pt-6">
-            <h4 className="text-lg font-semibold text-white mb-4">Add New Record</h4>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-gray-400 text-sm mb-2">Record Type</label>
-                <select
-                  value={newRecordType}
-                  onChange={(e) => setNewRecordType(e.target.value)}
-                  className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg text-white outline-none focus:border-purple-500"
-                >
-                  <option value="">Select type...</option>
-                  <option value="wallet">Wallet Address</option>
-                  <option value="ipfs">IPFS Hash</option>
-                  <option value="website">Website URL</option>
-                  <option value="email">Email</option>
-                  <option value="twitter">Twitter</option>
-                  <option value="github">GitHub</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-400 text-sm mb-2">Value</label>
-                <input
-                  type="text"
-                  value={newRecordValue}
-                  onChange={(e) => setNewRecordValue(e.target.value)}
-                  placeholder="Enter value..."
-                  className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 outline-none focus:border-purple-500"
-                />
+          {isLoadingRecords ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-3">
+                <svg className="animate-spin h-6 w-6 text-purple-400" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-purple-300">Loading records...</span>
               </div>
             </div>
-            <button
-              onClick={handleAddRecord}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition"
-            >
-              Add Record
-            </button>
-          </div>
+          ) : (
+            <>
+              <div className="space-y-4 mb-6">
+                {records.map((record, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 bg-black/30 border border-purple-500/20 rounded-lg p-4"
+                  >
+                    <div className="flex-1">
+                      <p className="text-purple-400 text-sm font-semibold mb-1">{record.type}</p>
+                      <p className="text-white font-mono text-sm break-all">{record.value}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteRecord(idx)}
+                      className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-purple-500/30 pt-6">
+                <h4 className="text-lg font-semibold text-white mb-4">Add New Record</h4>
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">Record Type</label>
+                    <select
+                      value={newRecordType}
+                      onChange={(e) => setNewRecordType(e.target.value)}
+                      className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg text-white outline-none focus:border-purple-500"
+                    >
+                      <option value="">Select type...</option>
+                      <option value="wallet">Wallet Address</option>
+                      <option value="ipfs">IPFS Hash</option>
+                      <option value="website">Website URL</option>
+                      <option value="email">Email</option>
+                      <option value="twitter">Twitter</option>
+                      <option value="github">GitHub</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">Value</label>
+                    <input
+                      type="text"
+                      value={newRecordValue}
+                      onChange={(e) => setNewRecordValue(e.target.value)}
+                      placeholder="Enter value..."
+                      className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={handleAddRecord}
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition"
+                >
+                  Add Record
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Actions */}
         <div className="flex gap-4">
           <button
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || isLoadingRecords}
             className={`flex-1 px-8 py-4 font-bold text-lg rounded-lg transition ${
-              isSaving
+              isSaving || isLoadingRecords
                 ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg shadow-purple-500/50'
             }`}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </span>
+            ) : (
+              'Save Changes'
+            )}
           </button>
           <button
             className="px-8 py-4 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg transition border border-red-500/50"
