@@ -14,7 +14,7 @@ export default function Navbar() {
             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               AtomicFizzCaps
             </h1>
-            <p className="text-xs text-gray-400">Web3 Domains</p>
+            <p className="text-xs text-gray-400">Universal Naming</p>
           </div>
         </div>
         
@@ -23,7 +23,7 @@ export default function Navbar() {
             Search
           </a>
           <a href="/dashboard" className="text-gray-300 hover:text-purple-400 transition">
-            My Domains
+            My Identities
           </a>
           <a href="#" className="text-gray-300 hover:text-purple-400 transition">
             About

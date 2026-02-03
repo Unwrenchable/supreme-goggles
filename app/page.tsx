@@ -7,13 +7,13 @@ export default function Home() {
       <div className="text-center mb-16">
         <h1 className="text-5xl md:text-7xl font-bold mb-6">
           <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-            Own Your Identity
+            Universal Web3 Identity
           </span>
           <br />
-          <span className="text-white">on the Blockchain</span>
+          <span className="text-white">Across All Chains</span>
         </h1>
         <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-          Register your Web3 domain with AtomicFizzCaps. One-time purchase, lifetime ownership - truly yours forever.
+          The official multi-chain naming service hub. Register .fizz, .eth, .sol, and more - all with lifetime ownership.
         </p>
         <DomainSearch />
       </div>
@@ -52,7 +52,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-white mb-2">Multi-Chain Support</h3>
           <p className="text-gray-400">
-            Use your domains across multiple blockchain networks and platforms.
+            Register names across Ethereum, Solana, BNB, Arbitrum, Optimism, Polygon, and more - all in one place.
           </p>
         </div>
       </div>

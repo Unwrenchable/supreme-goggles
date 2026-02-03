@@ -3,6 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import { checkDomainAvailability, getDomainPrice } from '@/lib/mockData';
+import { EXTENSION_INFO } from '@/lib/contract';
 import Link from 'next/link';
 
 function SearchResults() {
@@ -22,6 +23,7 @@ function SearchResults() {
   }, [domain, ext]);
 
   const fullDomain = `${domain}${ext}`;
+  const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO];
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -33,7 +35,7 @@ function SearchResults() {
             <div>
               <h2 className="text-3xl font-bold text-white mb-2">{fullDomain}</h2>
               <p className="text-gray-400">
-                {domain.length} characters • Premium domain
+                {domain.length} characters • {extensionInfo ? extensionInfo.chain : 'Multi-Chain'} • Premium identity
               </p>
             </div>
             <div className={`px-6 py-3 rounded-full font-bold text-lg ${
@@ -86,10 +88,10 @@ function SearchResults() {
           <h3 className="text-xl font-bold text-white mb-4">Similar Available Domains</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {[
-              { name: `${domain}web3`, ext: '.web3', price: 0.075 },
-              { name: `${domain}dao`, ext: '.atom', price: 0.060 },
-              { name: `${domain}nft`, ext: '.web3', price: 0.090 },
-              { name: `my${domain}`, ext: '.atom', price: 0.070 },
+              { name: `${domain}`, ext: '.eth', price: 0.080 },
+              { name: `${domain}`, ext: '.sol', price: 0.065 },
+              { name: `${domain}`, ext: '.crypto', price: 0.095 },
+              { name: `${domain}`, ext: '.bnb', price: 0.055 },
             ].map((suggestion, idx) => (
               <Link
                 key={idx}
@@ -98,7 +100,9 @@ function SearchResults() {
               >
                 <div>
                   <p className="text-white font-semibold">{suggestion.name}{suggestion.ext}</p>
-                  <p className="text-gray-400 text-sm">{suggestion.price} ETH - Lifetime</p>
+                  <p className="text-gray-400 text-sm">
+                    {suggestion.price} ETH - Lifetime • {EXTENSION_INFO[suggestion.ext as keyof typeof EXTENSION_INFO]?.chain}
+                  </p>
                 </div>
                 <span className="text-green-400 text-sm">Available</span>
               </Link>

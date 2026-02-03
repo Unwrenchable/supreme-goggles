@@ -6,7 +6,7 @@ import { DOMAIN_EXTENSIONS } from '@/lib/contract';
 
 export default function DomainSearch() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedExtension, setSelectedExtension] = useState('.web3');
+  const [selectedExtension, setSelectedExtension] = useState('.fizz');
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -24,7 +24,7 @@ export default function DomainSearch() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for your perfect domain..."
+            placeholder="Search for your perfect identity..."
             className="flex-1 px-4 py-3 bg-transparent text-white placeholder-gray-400 outline-none"
           />
           <select
