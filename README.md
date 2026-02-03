@@ -259,7 +259,7 @@ Copy `.env.example` to `.env.local` and configure the following:
 | `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` | **YOUR wallet address** where payments are sent | No | - |
 | `NEXT_PUBLIC_NETWORK` | Blockchain network to connect to | No | mainnet |
 
-**About the `NEXT_PUBLIC_` prefix:** All variables use the `NEXT_PUBLIC_` prefix because this is a Next.js framework requirement. Variables with this prefix are accessible to the client-side (browser) JavaScript code, which is necessary for Web3 wallet connections and smart contract interactions. See `.env.example` for more details.
+**About the `NEXT_PUBLIC_` prefix:** All Web3-related variables in this project use the `NEXT_PUBLIC_` prefix because this is a Next.js framework requirement. Variables with this prefix are accessible to the client-side (browser) JavaScript code, which is necessary for Web3 wallet connections and smart contract interactions. See `.env.example` for more details.
 
 **Payment Setup**: See [PAYMENTS.md](./PAYMENTS.md) for detailed payment collection configuration.
 
