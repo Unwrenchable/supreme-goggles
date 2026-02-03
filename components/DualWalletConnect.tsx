@@ -4,6 +4,10 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useState } from 'react';
 
+interface DualWalletConnectProps {
+  defaultChain?: 'evm' | 'solana';
+}
+
 /**
  * Dual Wallet Connect Component
  * 
@@ -14,9 +18,11 @@ import { useState } from 'react';
  * Mobile Support:
  * - EVM wallets: QR code via WalletConnect
  * - Solana wallets: Deep links and QR codes via wallet apps
+ * 
+ * @param defaultChain - Which chain to show by default ('solana' or 'evm')
  */
-export default function DualWalletConnect() {
-  const [activeChain, setActiveChain] = useState<'evm' | 'solana'>('solana');
+export default function DualWalletConnect({ defaultChain = 'solana' }: DualWalletConnectProps = {}) {
+  const [activeChain, setActiveChain] = useState<'evm' | 'solana'>(defaultChain);
 
   return (
     <div className="flex items-center gap-2">

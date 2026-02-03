@@ -93,9 +93,9 @@ export const isSolanaConfigured = (): boolean => {
     return true;
   }
   
-  // In production, check if contract address is configured
+  // In production, check if contract address is configured and valid
   const contractAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS;
-  return !!contractAddress;
+  return !!(contractAddress && contractAddress.trim());
 };
 
 /**

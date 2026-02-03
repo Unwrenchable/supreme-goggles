@@ -15,7 +15,7 @@ A **Web3 naming platform** supporting **Solana and EVM chains** - Register ANY d
 ### Installation
 
 ```bash
-# Clone and install
+# Clone the repository (replace with your fork if you've forked it)
 git clone https://github.com/Unwrenchable/supreme-goggles.git
 cd supreme-goggles
 npm install
