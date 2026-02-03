@@ -1,10 +1,28 @@
 # 📱 Mobile Wallet Connection Guide
 
-## QR Code Support for Mobile Wallets
+## Dual Chain Support: EVM + Solana
 
-AtomicFizzCaps Universal Naming Service supports seamless mobile wallet connections via QR codes for EVM (Ethereum Virtual Machine) chains.
+AtomicFizzCaps Universal Naming Service now supports seamless mobile wallet connections for **BOTH** EVM and Solana chains via multiple connection methods.
 
 ### Supported Mobile Wallets
+
+#### 🟣 Solana Wallets (Primary - For .sol, .fizz, .atomic domains)
+
+**Primary Mobile Wallets:**
+- **Phantom Mobile** - Most popular Solana & multi-chain wallet
+- **Solflare Mobile** - Feature-rich Solana wallet
+- **Trust Wallet** - Multi-chain including Solana support
+- **Crypto.com DeFi Wallet** - Multi-chain with Solana
+- **Backpack** - Modern Solana wallet
+- **Glow Wallet** - Solana-focused mobile wallet
+
+**Solana Wallet Features:**
+- Native support for .sol, .fizz, and .atomic domain registrations
+- Direct connection with deep links
+- QR code support for mobile connections
+- Fast Solana transaction signing
+- SOL and SPL token management
+- NFT support on Solana
 
 #### 🦊 EVM Wallets (Ethereum, Polygon, BSC, Arbitrum, etc.)
 
@@ -25,22 +43,54 @@ AtomicFizzCaps Universal Naming Service supports seamless mobile wallet connecti
 - NFT and token management
 - Multi-chain support in a single wallet
 
-#### 🟣 About Solana Wallet Support
-
-**Current Status:** Native Solana wallet connections (for .sol, .fizz, .atomic domains) are not yet integrated.
-
-**Why?** This app currently uses RainbowKit + Wagmi which are designed for EVM chains only. To add native Solana support, additional wallet adapters (like `@solana/wallet-adapter-react`) would need to be integrated.
-
-**Workaround:** Some wallets like Phantom support both EVM and Solana. You can connect Phantom via WalletConnect for EVM chain interactions, but native Solana features are not available yet.
-
-**Coming Soon:** We plan to add native Solana wallet support in a future update using the official Solana wallet adapter library.
-
 ### How to Connect Your Mobile Wallet
 
-#### Step 1: Click "Connect Wallet"
-Click the "Connect Wallet" button in the top-right corner of the navigation bar.
+#### Connecting Solana Wallets (Recommended for Solana Domains)
 
-#### Step 2: Select WalletConnect or Your Wallet
+##### Step 1: Select Solana Mode
+On desktop, you'll see a toggle between "Solana" and "EVM" at the top of the page. Make sure **"Solana"** is selected.
+
+##### Step 2: Click "Select Wallet"
+Click the purple "Select Wallet" button in the navigation bar.
+
+##### Step 3: Choose Your Solana Wallet
+A modal will appear showing available Solana wallets:
+- **Phantom** (Recommended)
+- **Solflare**
+- **Backpack**
+- **And others**
+
+##### Step 4: Connect on Mobile
+
+**Method 1: Deep Link (Easiest)**
+1. Click on your wallet name in the modal
+2. Your mobile wallet app will automatically open (if installed)
+3. Approve the connection in your mobile wallet
+4. You're connected! 🎉
+
+**Method 2: QR Code**
+1. Some wallets show a QR code option
+2. Open your mobile wallet app
+3. Find the "Scan" or "Connect" feature
+4. Scan the QR code displayed
+5. Approve the connection
+
+##### Step 5: Start Using Solana Features
+Once connected, you can:
+- Register .sol, .fizz, and .atomic domains
+- Pay with SOL
+- Manage your Solana domains
+- Sign transactions directly from your phone
+
+#### Connecting EVM Wallets (For Ethereum-based Domains)
+
+##### Step 1: Select EVM Mode
+Switch the chain toggle to **"EVM"** mode in the navigation bar.
+
+##### Step 2: Click "Connect Wallet"
+Click the "Connect Wallet" button.
+
+##### Step 3: Select WalletConnect or Your Wallet
 In the RainbowKit modal that appears, you'll see:
 - Desktop wallet options (MetaMask browser extension, etc.)
 - **WalletConnect** option for mobile wallets
@@ -48,10 +98,10 @@ In the RainbowKit modal that appears, you'll see:
 
 Select either "WalletConnect" or your specific mobile wallet from the list.
 
-#### Step 3: QR Code Appears
+##### Step 4: QR Code Appears
 A **QR code will automatically display** in the modal window. This QR code is unique to your connection session.
 
-#### Step 4: Scan with Mobile App
+##### Step 5: Scan with Mobile App
 
 **For All WalletConnect-Compatible Wallets (MetaMask, Trust Wallet, Phantom, etc.):**
 1. Open your mobile wallet app on your phone
@@ -60,37 +110,46 @@ A **QR code will automatically display** in the modal window. This QR code is un
 4. The app will automatically detect and scan the code
 5. Select which network/chain you want to connect with (if prompted)
 
-#### Step 5: Approve Connection
+##### Step 6: Approve Connection
 1. Your mobile wallet will show a connection request
 2. Review the connection details (app name, permissions)
 3. Tap "Connect" or "Approve" in your mobile wallet
 4. You're now connected! 🎉
 
-### 🟣 Connecting with Phantom Wallet (EVM Chains)
+### 🟣 Connecting with Phantom Wallet
 
-Phantom is a popular multi-chain wallet that supports both Solana and EVM chains. Currently, this platform supports Phantom's **EVM functionality only**.
+Phantom is a popular multi-chain wallet that now supports **BOTH** Solana and EVM chains natively!
 
-#### Quick Phantom Connection for EVM Chains:
+#### Phantom for Solana (Recommended):
+1. **Download Phantom** - Get it from App Store (iOS) or Google Play (Android)
+2. **Select Solana Mode** - Switch to "Solana" in the navbar toggle
+3. **Click "Select Wallet"** and choose Phantom
+4. **Approve connection** - Your app will open automatically (deep link) or scan QR
+5. **Done!** - You're connected to Solana and ready to register .sol, .fizz, .atomic domains
+
+#### Phantom for EVM Chains:
 1. **Download Phantom** - Get it from App Store (iOS) or Google Play (Android)
 2. **Open Phantom app** - Ensure you have the EVM chains enabled in settings
-3. **Click "Connect Wallet"** on the website and select "WalletConnect"
-4. **Scan QR code** - Point your camera at the QR code on your computer
-5. **Select Network** - Choose the EVM network you want to use (Ethereum, Polygon, etc.)
-6. **Approve connection** - Tap "Connect" when prompted
-7. **Done!** - You're connected and ready to register domains on EVM chains
+3. **Select EVM Mode** - Switch to "EVM" in the navbar toggle
+4. **Click "Connect Wallet"** on the website and select "WalletConnect"
+5. **Scan QR code** - Point your camera at the QR code on your computer
+6. **Select Network** - Choose the EVM network you want to use (Ethereum, Polygon, etc.)
+7. **Approve connection** - Tap "Connect" when prompted
+8. **Done!** - You're connected and ready to register domains on EVM chains
 
-#### Phantom EVM Features:
-- 🌐 Multi-chain support (Ethereum, Polygon, and other EVM chains)
-- 🔄 Easy network switching within the app
-- 💰 Token and NFT management across chains
-- 🔒 Biometric security (Face ID/Fingerprint)
-- 🎨 Clean, modern interface
+#### Phantom Features:
+- 🟣 **Solana support**: Native Solana transactions for .sol, .fizz, .atomic domains
+- 🌐 **Multi-chain support**: Ethereum, Polygon, and other EVM chains
+- 🔄 **Easy network switching**: Switch between Solana and EVM within the app
+- 💰 **Token and NFT management**: Across all supported chains
+- 🔒 **Biometric security**: Face ID/Fingerprint protection
+- 🎨 **Clean, modern interface**: User-friendly design
 
 #### Important Notes About Phantom:
+- ✅ **Solana FULLY supported**: Use native Solana features for .sol, .fizz, .atomic domains
 - ✅ **EVM chains supported**: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, Avalanche, Fantom
-- ⚠️ **Native Solana not yet integrated**: While Phantom excels at Solana, this platform doesn't yet support native Solana wallet connections
-- 💡 **Use for EVM domains**: Perfect for registering .eth, .crypto, .nft, .web3, .blockchain domains
-- 🔮 **Future Solana support**: We plan to add native Solana integration in future updates
+- 💡 **Use Solana mode for Solana domains**: Best experience for Solana transactions
+- 💡 **Use EVM mode for Ethereum domains**: Perfect for .eth, .crypto, .nft, .web3, .blockchain domains
 
 ### Tips for Best Experience
 
