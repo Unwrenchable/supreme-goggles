@@ -2,6 +2,8 @@
 
 The **truly unlimited Web3 naming hub** - register ANY extension you want! Choose from 15+ preset chains or create your own .anything extension. All with **lifetime ownership** - pay once, own forever.
 
+> **🚀 Want to deploy your own instance? See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute deployment guide!**
+
 ![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3+-38B2AC?style=flat-square&logo=tailwind-css)
