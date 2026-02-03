@@ -1,6 +1,6 @@
 # AtomicFizzCaps Web3 Domain Platform 🌐
 
-A modern, GoDaddy-style Web3 domain registration platform built for the atomicfizzcaps.xyz ecosystem. Register, manage, and customize blockchain domains with beautiful UI and seamless wallet integration.
+A modern Web3 domain registration platform built for the atomicfizzcaps.xyz ecosystem. Register blockchain domains with **lifetime ownership** - pay once, own forever. No renewals, no expiration dates.
 
 ![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
@@ -9,13 +9,21 @@ A modern, GoDaddy-style Web3 domain registration platform built for the atomicfi
 ## ✨ Features
 
 - 🔍 **Domain Search** - Search for available .web3 and .atom domains
-- 💰 **Registration** - Register domains with flexible pricing (1, 2, or 5 years)
+- 💎 **Lifetime Ownership** - One-time purchase, own forever - no renewals!
 - 🎨 **Modern UI** - Beautiful purple/blue gradient theme with glassmorphism
 - 👛 **Wallet Integration** - Connect with RainbowKit (MetaMask, WalletConnect, etc.)
 - 📊 **Dashboard** - Manage all your domains in one place
 - ⚙️ **Domain Management** - Update DNS records, wallet addresses, IPFS hashes
 - 🔗 **Multi-Chain** - Support for Ethereum, Polygon, Optimism, Arbitrum
 - ⚡ **Fast & Responsive** - Built with Next.js 14 App Router
+
+## 🌟 Why Lifetime Ownership?
+
+Unlike traditional DNS services (like GoDaddy) that require annual renewals, Web3 domains on our platform are **permanent**:
+- ✅ **Pay once, own forever** - No recurring fees
+- ✅ **No expiration dates** - Your domain never expires
+- ✅ **True decentralization** - Stored permanently on the blockchain
+- ✅ **Full control** - Transfer or sell anytime without time pressure
 
 ## 🚀 Getting Started
 
@@ -98,29 +106,29 @@ Search for available .web3 or .atom domains with instant availability checking. 
 ### Registration Flow
 1. Search for a domain
 2. Check availability
-3. Select registration period (1, 2, or 5 years)
-4. Connect wallet
-5. Complete transaction
-6. Domain appears in dashboard
+3. Connect wallet
+4. Complete one-time payment transaction
+5. Domain appears in dashboard with lifetime ownership
 
 ### Domain Management
 - Update wallet addresses
 - Set IPFS content hashes
 - Link social media accounts
 - Configure DNS records
-- Transfer domain ownership
-- Renew registration
+- Transfer domain ownership (no expiry pressure!)
+- Permanent ownership with no renewals
 
 ## 🔌 Smart Contract Integration
 
 The platform includes a complete Domain Registry smart contract ABI with the following functions:
 
-- `registerDomain(domain, duration)` - Register a new domain
+- `registerDomain(domain)` - Register a new domain with lifetime ownership
 - `checkAvailability(domain)` - Check if domain is available
-- `getDomainInfo(domain)` - Get domain ownership and expiry
+- `getDomainInfo(domain)` - Get domain ownership and registration date
 - `setRecord(domain, recordType, value)` - Update domain records
 - `getRecord(domain, recordType)` - Retrieve domain records
 - `getUserDomains(owner)` - Get all domains owned by an address
+- `transferDomain(domain, newOwner)` - Transfer domain to new owner
 
 ## 🎨 Branding
 

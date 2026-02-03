@@ -23,7 +23,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "expiresAt",
+          "name": "registeredAt",
           "type": "uint256"
         }
       ],
@@ -91,7 +91,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "expiresAt",
+          "name": "registeredAt",
           "type": "uint256"
         },
         {
@@ -152,11 +152,6 @@
           "internalType": "string",
           "name": "domain",
           "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "duration",
-          "type": "uint256"
         }
       ],
       "name": "registerDomain",
@@ -183,6 +178,24 @@
         }
       ],
       "name": "setRecord",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "domain",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferDomain",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

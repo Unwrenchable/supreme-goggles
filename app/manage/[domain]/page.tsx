@@ -78,7 +78,12 @@ export default function ManageDomainPage() {
 
         {/* Domain Info */}
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-8 mb-8">
-          <h2 className="text-3xl font-bold text-white mb-4">{domain}</h2>
+          <div className="flex items-start justify-between mb-4">
+            <h2 className="text-3xl font-bold text-white">{domain}</h2>
+            <div className="px-4 py-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-bold rounded-full">
+              ✨ Lifetime
+            </div>
+          </div>
           <div className="grid md:grid-cols-3 gap-4">
             <div>
               <p className="text-gray-400 text-sm">Owner</p>
@@ -86,11 +91,11 @@ export default function ManageDomainPage() {
             </div>
             <div>
               <p className="text-gray-400 text-sm">Status</p>
-              <p className="text-green-400 font-semibold">Active</p>
+              <p className="text-green-400 font-semibold">Permanent Ownership</p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Expires</p>
-              <p className="text-white">{new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
+              <p className="text-gray-400 text-sm">Expiration</p>
+              <p className="text-purple-300 font-semibold">Never</p>
             </div>
           </div>
         </div>
@@ -184,13 +189,13 @@ export default function ManageDomainPage() {
           <h4 className="text-lg font-semibold text-white mb-4">Additional Options</h4>
           <div className="space-y-3">
             <button className="w-full text-left px-4 py-3 bg-black/30 hover:bg-black/50 text-purple-300 rounded-lg transition">
-              Renew Domain
-            </button>
-            <button className="w-full text-left px-4 py-3 bg-black/30 hover:bg-black/50 text-purple-300 rounded-lg transition">
               Set Primary Domain
             </button>
             <button className="w-full text-left px-4 py-3 bg-black/30 hover:bg-black/50 text-purple-300 rounded-lg transition">
               View Transaction History
+            </button>
+            <button className="w-full text-left px-4 py-3 bg-black/30 hover:bg-black/50 text-purple-300 rounded-lg transition">
+              Export Domain Settings
             </button>
           </div>
         </div>

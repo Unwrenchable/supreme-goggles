@@ -17,7 +17,7 @@ function SearchResults() {
     if (domain) {
       const available = checkDomainAvailability(domain, ext);
       setIsAvailable(available);
-      setPrice(getDomainPrice(domain, 1));
+      setPrice(getDomainPrice(domain));
     }
   }, [domain, ext]);
 
@@ -47,29 +47,23 @@ function SearchResults() {
 
           {isAvailable ? (
             <>
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-black/30 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">1 Year</p>
-                  <p className="text-2xl font-bold text-white">{price.toFixed(3)} ETH</p>
-                  <p className="text-gray-500 text-sm">${(price * 3000).toFixed(2)} USD</p>
+              <div className="bg-black/30 rounded-lg p-6 mb-6 text-center">
+                <div className="inline-block px-4 py-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-bold rounded-full mb-4">
+                  ✨ LIFETIME OWNERSHIP
                 </div>
-                <div className="bg-black/30 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">2 Years</p>
-                  <p className="text-2xl font-bold text-white">{(price * 2 * 0.95).toFixed(3)} ETH</p>
-                  <p className="text-green-400 text-sm">Save 5%</p>
-                </div>
-                <div className="bg-black/30 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">5 Years</p>
-                  <p className="text-2xl font-bold text-white">{(price * 5 * 0.85).toFixed(3)} ETH</p>
-                  <p className="text-green-400 text-sm">Save 15%</p>
-                </div>
+                <p className="text-gray-400 text-sm mb-2">One-time purchase, yours forever</p>
+                <p className="text-4xl font-bold text-white mb-2">{price.toFixed(3)} ETH</p>
+                <p className="text-gray-400 text-lg">${(price * 3000).toFixed(2)} USD</p>
+                <p className="text-purple-300 text-sm mt-4">
+                  No renewals • No expiry • Permanent ownership on the blockchain
+                </p>
               </div>
 
               <Link
                 href={`/register?domain=${domain}&ext=${ext}`}
                 className="block w-full text-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold text-lg rounded-lg transition shadow-lg shadow-purple-500/50"
               >
-                Register {fullDomain}
+                Register {fullDomain} - Lifetime Ownership
               </Link>
             </>
           ) : (
@@ -92,10 +86,10 @@ function SearchResults() {
           <h3 className="text-xl font-bold text-white mb-4">Similar Available Domains</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {[
-              { name: `${domain}web3`, ext: '.web3', price: 0.015 },
-              { name: `${domain}dao`, ext: '.atom', price: 0.012 },
-              { name: `${domain}nft`, ext: '.web3', price: 0.018 },
-              { name: `my${domain}`, ext: '.atom', price: 0.014 },
+              { name: `${domain}web3`, ext: '.web3', price: 0.075 },
+              { name: `${domain}dao`, ext: '.atom', price: 0.060 },
+              { name: `${domain}nft`, ext: '.web3', price: 0.090 },
+              { name: `my${domain}`, ext: '.atom', price: 0.070 },
             ].map((suggestion, idx) => (
               <Link
                 key={idx}
@@ -104,7 +98,7 @@ function SearchResults() {
               >
                 <div>
                   <p className="text-white font-semibold">{suggestion.name}{suggestion.ext}</p>
-                  <p className="text-gray-400 text-sm">{suggestion.price} ETH/year</p>
+                  <p className="text-gray-400 text-sm">{suggestion.price} ETH - Lifetime</p>
                 </div>
                 <span className="text-green-400 text-sm">Available</span>
               </Link>

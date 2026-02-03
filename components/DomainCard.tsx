@@ -9,8 +9,7 @@ interface DomainCardProps {
 
 export default function DomainCard({ domain }: DomainCardProps) {
   const fullDomain = `${domain.name}${domain.extension}`;
-  const expiresDate = new Date(domain.expiresAt);
-  const daysUntilExpiry = Math.ceil((domain.expiresAt - Date.now()) / (1000 * 60 * 60 * 24));
+  const registeredDate = new Date(domain.registeredAt);
   
   return (
     <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-lg p-6 hover:border-purple-500/60 transition">
@@ -21,23 +20,19 @@ export default function DomainCard({ domain }: DomainCardProps) {
             Owner: {domain.owner.slice(0, 6)}...{domain.owner.slice(-4)}
           </p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-          domain.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-        }`}>
-          {domain.isActive ? 'Active' : 'Expired'}
+        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/50">
+          ✨ Lifetime
         </span>
       </div>
       
       <div className="space-y-2 mb-4">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-400">Expires:</span>
-          <span className="text-white">{expiresDate.toLocaleDateString()}</span>
+          <span className="text-gray-400">Registered:</span>
+          <span className="text-white">{registeredDate.toLocaleDateString()}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-400">Days remaining:</span>
-          <span className={daysUntilExpiry < 30 ? 'text-yellow-400' : 'text-green-400'}>
-            {daysUntilExpiry} days
-          </span>
+          <span className="text-gray-400">Status:</span>
+          <span className="text-green-400 font-semibold">Permanent Ownership</span>
         </div>
       </div>
 

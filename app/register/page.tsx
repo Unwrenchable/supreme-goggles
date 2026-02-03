@@ -14,12 +14,9 @@ function RegisterForm() {
   const ext = searchParams.get('ext') || '.web3';
   const fullDomain = `${domain}${ext}`;
   
-  const [years, setYears] = useState(1);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  const basePrice = getDomainPrice(domain, 1);
-  const discount = years === 2 ? 0.95 : years >= 5 ? 0.85 : 1;
-  const totalPrice = basePrice * years * discount;
+  const price = getDomainPrice(domain);
 
   const handleRegister = async () => {
     if (!isConnected) {
@@ -31,7 +28,7 @@ function RegisterForm() {
     
     setTimeout(() => {
       setIsRegistering(false);
-      alert(`Successfully registered ${fullDomain} for ${years} year(s)!`);
+      alert(`Successfully registered ${fullDomain} with lifetime ownership!`);
       router.push('/dashboard');
     }, 2000);
   };
@@ -43,56 +40,28 @@ function RegisterForm() {
         
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-8 mb-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">{fullDomain}</h2>
-            <p className="text-gray-400">Secure your Web3 identity</p>
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-white font-semibold mb-3">Registration Period</label>
-            <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 5].map((y) => (
-                <button
-                  key={y}
-                  onClick={() => setYears(y)}
-                  className={`p-4 rounded-lg border-2 transition ${
-                    years === y
-                      ? 'border-purple-500 bg-purple-500/20'
-                      : 'border-purple-500/30 bg-black/30 hover:border-purple-500/60'
-                  }`}
-                >
-                  <p className="text-2xl font-bold text-white mb-1">{y}</p>
-                  <p className="text-gray-400 text-sm">Year{y > 1 ? 's' : ''}</p>
-                  {y > 1 && (
-                    <p className="text-green-400 text-xs mt-1">
-                      {y === 2 ? 'Save 5%' : 'Save 15%'}
-                    </p>
-                  )}
-                </button>
-              ))}
+            <div className="inline-block px-4 py-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-bold rounded-full mb-4">
+              ✨ LIFETIME OWNERSHIP
             </div>
+            <h2 className="text-3xl font-bold text-white mb-2">{fullDomain}</h2>
+            <p className="text-gray-400">Own it forever • No renewals required</p>
           </div>
 
           <div className="bg-black/40 rounded-lg p-6 mb-6">
             <div className="flex justify-between mb-2">
-              <span className="text-gray-400">Base Price</span>
-              <span className="text-white">{basePrice.toFixed(4)} ETH/year</span>
+              <span className="text-gray-400">Registration Type</span>
+              <span className="text-purple-300 font-semibold">Lifetime Ownership</span>
             </div>
             <div className="flex justify-between mb-2">
-              <span className="text-gray-400">Duration</span>
-              <span className="text-white">{years} year{years > 1 ? 's' : ''}</span>
+              <span className="text-gray-400">Expiration</span>
+              <span className="text-green-400 font-semibold">Never</span>
             </div>
-            {discount < 1 && (
-              <div className="flex justify-between mb-2">
-                <span className="text-green-400">Discount</span>
-                <span className="text-green-400">-{((1 - discount) * 100).toFixed(0)}%</span>
-              </div>
-            )}
             <div className="border-t border-purple-500/30 mt-4 pt-4">
               <div className="flex justify-between">
-                <span className="text-white font-bold text-lg">Total</span>
+                <span className="text-white font-bold text-lg">One-Time Payment</span>
                 <div className="text-right">
-                  <p className="text-white font-bold text-lg">{totalPrice.toFixed(4)} ETH</p>
-                  <p className="text-gray-400 text-sm">${(totalPrice * 3000).toFixed(2)} USD</p>
+                  <p className="text-white font-bold text-lg">{price.toFixed(4)} ETH</p>
+                  <p className="text-gray-400 text-sm">${(price * 3000).toFixed(2)} USD</p>
                 </div>
               </div>
             </div>
@@ -119,16 +88,20 @@ function RegisterForm() {
                 : 'bg-gray-700 text-gray-400 cursor-not-allowed'
             }`}
           >
-            {isRegistering ? 'Processing...' : `Register for ${totalPrice.toFixed(4)} ETH`}
+            {isRegistering ? 'Processing...' : `Register for ${price.toFixed(4)} ETH - Lifetime`}
           </button>
         </div>
 
         <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/20 rounded-xl p-6">
-          <h3 className="text-lg font-bold text-white mb-3">What you get:</h3>
+          <h3 className="text-lg font-bold text-white mb-3">What you get with Lifetime Ownership:</h3>
           <ul className="space-y-2 text-gray-300">
             <li className="flex items-start">
               <span className="text-purple-400 mr-2">✓</span>
-              Full ownership of your domain on the blockchain
+              Permanent ownership on the blockchain - yours forever
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">✓</span>
+              No renewal fees or expiration dates
             </li>
             <li className="flex items-start">
               <span className="text-purple-400 mr-2">✓</span>

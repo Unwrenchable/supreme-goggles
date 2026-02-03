@@ -13,7 +13,7 @@ export default function Home() {
           <span className="text-white">on the Blockchain</span>
         </h1>
         <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-          Register your Web3 domain with AtomicFizzCaps. Decentralized, permanent, and truly yours.
+          Register your Web3 domain with AtomicFizzCaps. One-time purchase, lifetime ownership - truly yours forever.
         </p>
         <DomainSearch />
       </div>
@@ -38,9 +38,9 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">Lightning Fast</h3>
+          <h3 className="text-xl font-bold text-white mb-2">Lifetime Ownership</h3>
           <p className="text-gray-400">
-            Instant domain resolution powered by cutting-edge blockchain technology.
+            Pay once, own forever. No renewal fees, no expiration dates - permanent blockchain ownership.
           </p>
         </div>
 
