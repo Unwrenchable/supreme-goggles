@@ -2,6 +2,8 @@
 
 The **truly unlimited Web3 naming hub** - register ANY extension you want! Choose from 15+ preset chains or create your own .anything extension. All with **lifetime ownership** - pay once, own forever.
 
+> **🏗️ Full-Stack Architecture:** This is a complete **frontend AND backend** application! See [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) for details.
+>
 > **🚀 Want to deploy your own instance? See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute deployment guide!**
 >
 > **💰 What does deployment cost?** Check [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) - Start with Polygon (~$0.05) or BSC (~$1)!
@@ -14,6 +16,7 @@ The **truly unlimited Web3 naming hub** - register ANY extension you want! Choos
 
 | Guide | Description |
 |-------|-------------|
+| [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) | **Quick Reference** - "Do I have frontend AND backend?" - YES! |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | **Full-stack architecture guide** - Frontend, Backend & Blockchain explained |
 | [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
 | [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
