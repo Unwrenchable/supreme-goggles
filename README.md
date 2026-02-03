@@ -134,7 +134,9 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - Scan the QR code with your mobile wallet app
 - Approve the connection on your phone
 
-Supports MetaMask Mobile, Trust Wallet, Rainbow, Coinbase Wallet, and 300+ others.
+**Solana Wallets (for .fizz, .atomic, .sol):** Phantom, Solflare, Backpack, Glow, Ultimate
+
+**EVM Wallets (Ethereum, Polygon, BSC, etc.):** MetaMask Mobile, Trust Wallet, Rainbow, Coinbase Wallet, and 300+ others.
 
 📖 **See [MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md) for detailed instructions and troubleshooting.**
 

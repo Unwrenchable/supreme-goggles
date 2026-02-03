@@ -2,12 +2,29 @@
 
 ## QR Code Support for Mobile Wallets
 
-AtomicFizzCaps Universal Naming Service supports seamless mobile wallet connections via QR codes powered by WalletConnect protocol.
+AtomicFizzCaps Universal Naming Service supports seamless mobile wallet connections via QR codes for both Solana and EVM chains.
 
 ### Supported Mobile Wallets
 
-Connect using any WalletConnect-compatible mobile wallet, including:
+#### 🟣 Solana Wallets (For .fizz, .atomic, .sol domains)
 
+**Primary Solana Wallets:**
+- **Phantom** - Most popular Solana wallet, user-friendly mobile app
+- **Solflare** - Feature-rich Solana wallet with staking support
+- **Backpack** - Modern Solana wallet with xNFT support
+- **Glow** - Solana-focused wallet with governance features
+- **Ultimate** - Multi-chain wallet with strong Solana support
+
+**Solana Wallet Features:**
+- Native SOL and SPL token support
+- Fast, low-cost transactions on Solana
+- Perfect for .fizz and .atomic domain registrations
+- NFT and token management
+- In-app staking and DeFi access
+
+#### 🦊 EVM Wallets (For Ethereum, Polygon, BSC, Arbitrum, etc.)
+
+Connect using WalletConnect-compatible mobile wallets:
 - **MetaMask Mobile** - Most popular Ethereum wallet
 - **Trust Wallet** - Multi-chain mobile wallet
 - **Rainbow Wallet** - User-friendly Ethereum wallet  
@@ -33,6 +50,14 @@ Select either "WalletConnect" or your specific mobile wallet from the list.
 A **QR code will automatically display** in the modal window. This QR code is unique to your connection session.
 
 #### Step 4: Scan with Mobile App
+
+**For Solana Wallets (Phantom, Solflare, etc.):**
+1. Open your Solana wallet app on your phone
+2. Tap the scan icon or "Connect" button
+3. Point your phone's camera at the QR code on your computer screen
+4. The app will automatically detect and scan the code
+
+**For EVM Wallets (MetaMask, Trust Wallet, etc.):**
 1. Open your mobile wallet app on your phone
 2. Look for the "WalletConnect" or "Scan" option (usually in settings or top menu)
 3. Point your phone's camera at the QR code on your computer screen
@@ -43,6 +68,30 @@ A **QR code will automatically display** in the modal window. This QR code is un
 2. Review the connection details (app name, permissions)
 3. Tap "Connect" or "Approve" in your mobile wallet
 4. You're now connected! 🎉
+
+### 🟣 Connecting with Phantom Wallet (Solana)
+
+Phantom is the most popular Solana wallet and recommended for .fizz, .atomic, and .sol domain registrations.
+
+#### Quick Phantom Connection:
+1. **Download Phantom** - Get it from App Store (iOS) or Google Play (Android)
+2. **Open Phantom app** - Tap the scan icon in the top right
+3. **Scan QR code** - Point your camera at the QR code on your computer
+4. **Approve connection** - Tap "Connect" when prompted
+5. **Done!** - You're connected and ready to register Solana domains
+
+#### Phantom Features:
+- 🚀 Fast Solana transactions
+- 💎 Low fees (fractions of a cent)
+- 🎨 NFT gallery and management
+- 💰 Token swaps built-in
+- 🔒 Biometric security (Face ID/Fingerprint)
+
+#### Why Phantom for .fizz domains?
+- Native Solana support (not bridged)
+- Fastest domain registration experience
+- Cheapest transaction costs
+- Best mobile UX in the Solana ecosystem
 
 ### Tips for Best Experience
 
@@ -55,6 +104,34 @@ A **QR code will automatically display** in the modal window. This QR code is un
 ✅ **Keep App Open**: Keep your mobile wallet app open while using the platform for the best experience
 
 ✅ **Reconnection**: If disconnected, simply repeat the process - your previous domains and settings are preserved
+
+### Other Solana Wallets
+
+In addition to Phantom, these Solana wallets also work great with the platform:
+
+#### Solflare
+- Advanced features for Solana power users
+- Built-in staking and DeFi access
+- Hardware wallet support (Ledger)
+- Available on iOS and Android
+
+#### Backpack
+- Modern, sleek interface
+- xNFT support (executable NFTs)
+- Multi-wallet management
+- Growing ecosystem support
+
+#### Glow
+- Focus on Solana governance
+- Vote on proposals directly
+- Clean, minimalist design
+- Strong security features
+
+#### Ultimate
+- Multi-chain support (Solana + EVM)
+- One wallet for all your chains
+- Cross-chain swaps
+- Unified portfolio view
 
 ### Technical Details
 

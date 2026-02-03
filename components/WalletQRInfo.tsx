@@ -47,7 +47,7 @@ export default function WalletQRInfo() {
             </li>
             <li className="flex items-start gap-2">
               <span className="flex-shrink-0 w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-300 text-xs font-bold">3</span>
-              <span>Open your mobile wallet app (MetaMask, Trust Wallet, Rainbow, Coinbase Wallet, etc.)</span>
+              <span>Open your mobile wallet app on your phone</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="flex-shrink-0 w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-300 text-xs font-bold">4</span>
@@ -60,9 +60,22 @@ export default function WalletQRInfo() {
           </ol>
           
           <div className="mt-4 pt-4 border-t border-purple-500/20">
+            <p className="text-xs text-gray-400 mb-3">
+              <strong className="text-purple-300">Solana Wallets (.fizz, .atomic, .sol domains):</strong>
+              <br />
+              <span className="inline-flex items-center gap-2 mt-1">
+                🟣 <strong className="text-white">Phantom</strong> • Solflare • Backpack • Glow • Ultimate
+              </span>
+            </p>
             <p className="text-xs text-gray-400">
-              💡 <strong className="text-purple-300">Tip:</strong> Make sure your phone and computer are on the same network for the best connection experience. 
-              Supported wallets include MetaMask Mobile, Trust Wallet, Rainbow, Coinbase Wallet, and 300+ others.
+              <strong className="text-purple-300">EVM Wallets (Ethereum, Polygon, BSC, etc.):</strong>
+              <br />
+              <span className="inline-flex items-center gap-2 mt-1">
+                🦊 MetaMask • Trust Wallet • Rainbow • Coinbase Wallet • 300+ others
+              </span>
+            </p>
+            <p className="text-xs text-gray-400 mt-3">
+              💡 <strong className="text-purple-300">Tip:</strong> Make sure your phone and computer are on the same network for the best connection experience.
             </p>
           </div>
         </div>
