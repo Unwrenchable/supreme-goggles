@@ -2,20 +2,27 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, Suspense } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
+import { BrowserProvider } from 'ethers';
 import { getDomainPrice } from '@/lib/mockData';
-import { EXTENSION_INFO, getCurrencyUSDRate } from '@/lib/contract';
+import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE } from '@/lib/contract';
+import { registerDomainOnChain, formatTransactionError } from '@/lib/blockchain';
+import WalletQRInfo from '@/components/WalletQRInfo';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { address, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
   
   const domain = searchParams.get('domain') || '';
   const ext = searchParams.get('ext') || '.web3';
   const fullDomain = `${domain}${ext}`;
   
   const [isRegistering, setIsRegistering] = useState(false);
+  const [txHash, setTxHash] = useState<string>('');
+  const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const priceInfo = getDomainPrice(domain, ext);
   const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
@@ -28,20 +35,67 @@ function RegisterForm() {
   
   const usdRate = getCurrencyUSDRate(priceInfo.currency);
   const usdValue = priceInfo.price * usdRate;
+  
+  const isProductionMode = USE_PRODUCTION_MODE && isProductionConfigured(ext);
 
   const handleRegister = async () => {
     if (!isConnected) {
-      alert('Please connect your wallet first');
+      setErrorMessage('Please connect your wallet first');
       return;
     }
 
     setIsRegistering(true);
+    setTxStatus('pending');
+    setErrorMessage('');
+    setTxHash('');
     
-    setTimeout(() => {
+    try {
+      // Production mode: Real blockchain transaction
+      if (isProductionMode && walletClient) {
+        // Convert walletClient to ethers provider
+        // Note: wagmi's walletClient is compatible with EIP-1193 provider interface
+        const provider = new BrowserProvider(walletClient as any);
+        const signer = await provider.getSigner();
+        
+        // Convert price to BigInt (wei/smallest unit)
+        const paymentAmount = BigInt(Math.floor(priceInfo.price * 1e18));
+        
+        const result = await registerDomainOnChain(
+          fullDomain,
+          ext,
+          paymentAmount,
+          signer
+        );
+        
+        if (result.success && result.transactionHash) {
+          setTxHash(result.transactionHash);
+          setTxStatus('success');
+          
+          // Redirect to dashboard after a short delay
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 3000);
+        } else {
+          setTxStatus('error');
+          setErrorMessage(result.error || 'Transaction failed');
+        }
+      } 
+      // Demo mode: Simulate transaction
+      else {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setTxStatus('success');
+        
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2000);
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      setTxStatus('error');
+      setErrorMessage(formatTransactionError(error));
+    } finally {
       setIsRegistering(false);
-      alert(`Successfully registered ${fullDomain} with lifetime ownership! Payment made in ${priceInfo.currencySymbol}.`);
-      router.push('/dashboard');
-    }, 2000);
+    }
   };
 
   return (
@@ -49,6 +103,21 @@ function RegisterForm() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold text-white mb-2">Register Domain</h1>
         <p className="text-slate-400 mb-8">Secure your Web3 identity with lifetime ownership</p>
+        
+        {/* Demo Mode Banner */}
+        {!isProductionMode && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-amber-400 text-xl">ℹ️</span>
+              <div>
+                <p className="text-amber-400 font-semibold mb-1">Demo Mode</p>
+                <p className="text-amber-300 text-sm">
+                  This is currently in demo mode. To enable real payments, see the <a href="/PAYMENTS.md" className="underline">payment setup guide</a>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         
         <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 mb-8 shadow-2xl">
           <div className="text-center mb-8">
@@ -91,10 +160,67 @@ function RegisterForm() {
             </div>
           </div>
 
-          {!isConnected ? (
-            <div className="text-center py-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
-              <p className="text-amber-400 font-medium">Please connect your wallet to continue</p>
+          {/* Transaction Status Messages */}
+          {txStatus === 'pending' && (
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <svg className="animate-spin h-5 w-5 text-blue-400" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <div>
+                  <p className="text-blue-400 font-semibold">Transaction Pending</p>
+                  <p className="text-blue-300 text-sm">
+                    {isProductionMode ? 'Waiting for blockchain confirmation...' : 'Simulating registration...'}
+                  </p>
+                </div>
+              </div>
             </div>
+          )}
+          
+          {txStatus === 'success' && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 text-xl">✓</span>
+                <div className="flex-1">
+                  <p className="text-emerald-400 font-semibold mb-1">Successfully Registered!</p>
+                  <p className="text-emerald-300 text-sm mb-2">
+                    {fullDomain} is now registered with lifetime ownership!
+                  </p>
+                  {txHash && (
+                    <a 
+                      href={`https://etherscan.io/tx/${txHash}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 text-xs underline hover:text-emerald-300"
+                    >
+                      View transaction ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {txStatus === 'error' && errorMessage && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 text-xl">✕</span>
+                <div>
+                  <p className="text-red-400 font-semibold mb-1">Transaction Failed</p>
+                  <p className="text-red-300 text-sm">{errorMessage}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isConnected ? (
+            <>
+              <WalletQRInfo />
+              <div className="text-center py-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
+                <p className="text-amber-400 font-medium">Please connect your wallet to continue</p>
+              </div>
+            </>
           ) : (
             <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 mb-6">
               <p className="text-violet-300 text-sm font-medium">
@@ -109,9 +235,9 @@ function RegisterForm() {
 
           <button
             onClick={handleRegister}
-            disabled={!isConnected || isRegistering}
+            disabled={!isConnected || isRegistering || txStatus === 'success'}
             className={`w-full px-8 py-4 font-semibold text-base rounded-xl transition-all duration-200 shadow-lg ${
-              isConnected && !isRegistering
+              isConnected && !isRegistering && txStatus !== 'success'
                 ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/50 hover:shadow-violet-500/70 hover:scale-[1.02]'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed'
             }`}
@@ -122,8 +248,10 @@ function RegisterForm() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Processing...
+                {isProductionMode ? 'Processing Transaction...' : 'Processing...'}
               </span>
+            ) : txStatus === 'success' ? (
+              'Redirecting to Dashboard...'
             ) : (
               `Pay ${priceInfo.price.toFixed(4)} ${priceInfo.currencySymbol} - Register Now`
             )}

@@ -2,25 +2,52 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { checkDomainAvailability, getDomainPrice } from '@/lib/mockData';
-import { EXTENSION_INFO, getCurrencyUSDRate } from '@/lib/contract';
+import { usePublicClient } from 'wagmi';
+import { checkDomainAvailability as checkMockAvailability, getDomainPrice } from '@/lib/mockData';
+import { checkDomainAvailabilityOnChain } from '@/lib/blockchain';
+import { EXTENSION_INFO, getCurrencyUSDRate, USE_PRODUCTION_MODE } from '@/lib/contract';
 import Link from 'next/link';
 
 function SearchResults() {
   const searchParams = useSearchParams();
+  const publicClient = usePublicClient();
+  
   const domain = searchParams.get('domain') || '';
   const ext = searchParams.get('ext') || '.web3';
   
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [isChecking, setIsChecking] = useState(true);
   const [priceInfo, setPriceInfo] = useState<{ price: number; currency: string; currencySymbol: string }>({ price: 0, currency: 'ETH', currencySymbol: 'ETH' });
 
   useEffect(() => {
-    if (domain) {
-      const available = checkDomainAvailability(domain, ext);
-      setIsAvailable(available);
-      setPriceInfo(getDomainPrice(domain, ext));
-    }
-  }, [domain, ext]);
+    const checkAvailability = async () => {
+      if (!domain) return;
+      
+      setIsChecking(true);
+      
+      try {
+        // Check availability on blockchain or use mock data
+        const available = await checkDomainAvailabilityOnChain(
+          domain,
+          ext,
+          publicClient as any
+        );
+        
+        setIsAvailable(available);
+        setPriceInfo(getDomainPrice(domain, ext));
+      } catch (error) {
+        console.error('Failed to check availability:', error);
+        // Fallback to mock data
+        const available = checkMockAvailability(domain, ext);
+        setIsAvailable(available);
+        setPriceInfo(getDomainPrice(domain, ext));
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    
+    checkAvailability();
+  }, [domain, ext, publicClient]);
 
   const fullDomain = `${domain}${ext}`;
   const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
@@ -40,6 +67,20 @@ function SearchResults() {
         <h1 className="text-4xl font-bold text-white mb-2">Search Results</h1>
         <p className="text-slate-400 mb-8">Review domain availability and pricing</p>
         
+        {!USE_PRODUCTION_MODE && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-amber-400 text-xl">ℹ️</span>
+              <div>
+                <p className="text-amber-400 font-semibold mb-1">Demo Mode</p>
+                <p className="text-amber-300 text-sm">
+                  Availability shown is simulated. Enable production mode to check real blockchain availability.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 mb-8 shadow-2xl">
           <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div className="flex-1 min-w-[250px]">
@@ -51,16 +92,28 @@ function SearchResults() {
                 <span className="text-indigo-300 text-xs font-medium">💎 Pay in {priceInfo.currencySymbol}</span>
               </div>
             </div>
-            <div className={`px-6 py-3 rounded-xl font-bold text-lg border-2 ${
-              isAvailable 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/50'
-                : 'bg-red-500/10 text-red-400 border-red-500/50'
-            }`}>
-              {isAvailable ? '✓ Available' : '✗ Taken'}
-            </div>
+            {isChecking ? (
+              <div className="px-6 py-3 rounded-xl font-bold text-lg border-2 bg-slate-500/10 text-slate-400 border-slate-500/50">
+                <div className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Checking...
+                </div>
+              </div>
+            ) : (
+              <div className={`px-6 py-3 rounded-xl font-bold text-lg border-2 ${
+                isAvailable 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/50'
+                  : 'bg-red-500/10 text-red-400 border-red-500/50'
+              }`}>
+                {isAvailable ? '✓ Available' : '✗ Taken'}
+              </div>
+            )}
           </div>
 
-          {isAvailable ? (
+          {!isChecking && isAvailable ? (
             <>
               <div className="bg-slate-950/50 rounded-xl p-8 mb-6 text-center border border-slate-800/50">
                 <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-semibold rounded-full mb-4 uppercase tracking-wide">
@@ -86,7 +139,7 @@ function SearchResults() {
                 Register {fullDomain} - Pay in {priceInfo.currencySymbol}
               </Link>
             </>
-          ) : (
+          ) : !isChecking && !isAvailable ? (
             <div className="text-center py-8">
               <div className="mb-4 inline-block p-4 bg-red-500/10 rounded-full">
                 <svg className="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +156,7 @@ function SearchResults() {
                 Search Another Domain
               </Link>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Alternative Suggestions */}
