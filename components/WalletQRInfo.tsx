@@ -61,21 +61,28 @@ export default function WalletQRInfo() {
           
           <div className="mt-4 pt-4 border-t border-purple-500/20">
             <p className="text-xs text-gray-400 mb-3">
-              <strong className="text-purple-300">Solana Wallets (.fizz, .atomic, .sol domains):</strong>
+              <strong className="text-purple-300">Supported Mobile Wallets (EVM Chains):</strong>
               <br />
               <span className="inline-flex items-center gap-2 mt-1">
-                🟣 <strong className="text-white">Phantom</strong> • Solflare • Backpack • Glow • Ultimate
+                🦊 <strong className="text-white">MetaMask</strong> • Trust Wallet • Rainbow • Coinbase Wallet
+              </span>
+              <br />
+              <span className="inline-flex items-center gap-2 mt-1">
+                🟣 <strong className="text-white">Phantom</strong> (EVM support) • 300+ WalletConnect wallets
               </span>
             </p>
             <p className="text-xs text-gray-400">
-              <strong className="text-purple-300">EVM Wallets (Ethereum, Polygon, BSC, etc.):</strong>
+              <strong className="text-purple-300">Supported Networks:</strong>
               <br />
               <span className="inline-flex items-center gap-2 mt-1">
-                🦊 MetaMask • Trust Wallet • Rainbow • Coinbase Wallet • 300+ others
+                Ethereum • Polygon • Arbitrum • Optimism • Base • BSC • Avalanche • Fantom
               </span>
             </p>
             <p className="text-xs text-gray-400 mt-3">
               💡 <strong className="text-purple-300">Tip:</strong> Make sure your phone and computer are on the same network for the best connection experience.
+            </p>
+            <p className="text-xs text-yellow-400/80 mt-2">
+              ℹ️ <strong>Note:</strong> Native Solana wallet connections are not yet supported. For Solana domains, please use a wallet with EVM chain support.
             </p>
           </div>
         </div>
