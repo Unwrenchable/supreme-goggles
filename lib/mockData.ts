@@ -42,8 +42,8 @@ export const getDomainsByOwner = (owner: string): Domain[] => {
   return mockDomains.filter(d => d.owner.toLowerCase() === owner.toLowerCase());
 };
 
-export const getDomainPrice = (domainName: string): number => {
-  const basePrice = 0.05; // ETH one-time lifetime purchase
+export const getDomainPrice = (domainName: string, extension: string = '.web3'): { price: number; currency: string; currencySymbol: string } => {
+  const basePrice = 0.05; // Base price in native currency units
   const length = domainName.length;
   
   let multiplier = 1;
@@ -51,5 +51,32 @@ export const getDomainPrice = (domainName: string): number => {
   else if (length <= 4) multiplier = 5;
   else if (length <= 5) multiplier = 2;
   
-  return basePrice * multiplier;
+  const calculatedPrice = basePrice * multiplier;
+  
+  // Determine currency based on extension
+  const currencyMap: Record<string, { currency: string; symbol: string; priceMultiplier: number }> = {
+    '.eth': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.fizz': { currency: 'SOL', symbol: 'SOL', priceMultiplier: 1.5 }, // On Solana testnet
+    '.atomic': { currency: 'SOL', symbol: 'SOL', priceMultiplier: 1.5 }, // On Solana testnet
+    '.arb': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.op': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.sol': { currency: 'SOL', symbol: 'SOL', priceMultiplier: 1.5 }, // SOL is cheaper, so need more units
+    '.bnb': { currency: 'BNB', symbol: 'BNB', priceMultiplier: 0.5 }, // BNB pricing
+    '.poly': { currency: 'MATIC', symbol: 'MATIC', priceMultiplier: 60 }, // MATIC is much cheaper
+    '.avax': { currency: 'AVAX', symbol: 'AVAX', priceMultiplier: 4 }, // AVAX pricing
+    '.ftm': { currency: 'FTM', symbol: 'FTM', priceMultiplier: 90 }, // FTM is cheap
+    '.crypto': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.nft': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.dao': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.web3': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+    '.blockchain': { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 },
+  };
+  
+  const currencyInfo = currencyMap[extension] || { currency: 'ETH', symbol: 'ETH', priceMultiplier: 1 };
+  
+  return {
+    price: calculatedPrice * currencyInfo.priceMultiplier,
+    currency: currencyInfo.currency,
+    currencySymbol: currencyInfo.symbol,
+  };
 };

@@ -22,16 +22,16 @@ export default function DomainSearch() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <form onSubmit={handleSearch} className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 flex rounded-lg overflow-hidden border-2 border-purple-500/30 bg-black/40 backdrop-blur-sm focus-within:border-purple-500 transition">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 flex rounded-xl overflow-hidden border-2 border-slate-700/50 bg-slate-900/50 backdrop-blur-sm focus-within:border-violet-500/50 transition-all shadow-lg">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search for your perfect identity..."
-              className="flex-1 px-4 py-3 bg-transparent text-white placeholder-gray-400 outline-none"
+              className="flex-1 px-5 py-4 bg-transparent text-white placeholder-slate-500 outline-none text-lg"
             />
             {!useCustom ? (
               <select
@@ -43,25 +43,25 @@ export default function DomainSearch() {
                     setSelectedExtension(e.target.value);
                   }
                 }}
-                className="px-3 bg-purple-900/50 text-purple-200 border-l border-purple-500/30 outline-none cursor-pointer"
+                className="px-4 bg-slate-800/80 text-violet-200 border-l border-slate-700/50 outline-none cursor-pointer font-medium hover:bg-slate-800 transition-colors"
               >
                 {DOMAIN_EXTENSIONS.map((ext) => (
-                  <option key={ext} value={ext} className="bg-gray-900">
+                  <option key={ext} value={ext} className="bg-slate-900">
                     {ext}
                   </option>
                 ))}
-                <option value="custom" className="bg-gray-900 text-green-400">
+                <option value="custom" className="bg-slate-900 text-emerald-400">
                   ✨ Custom .anything
                 </option>
               </select>
             ) : (
-              <div className="flex items-center bg-purple-900/50 border-l border-purple-500/30">
+              <div className="flex items-center bg-slate-800/80 border-l border-slate-700/50">
                 <input
                   type="text"
                   value={customExtension}
                   onChange={(e) => setCustomExtension(e.target.value)}
                   placeholder=".anything"
-                  className="w-32 px-3 py-3 bg-transparent text-purple-200 placeholder-purple-400 outline-none"
+                  className="w-32 px-4 py-4 bg-transparent text-violet-200 placeholder-violet-400/50 outline-none font-medium"
                 />
                 <button
                   type="button"
@@ -69,7 +69,7 @@ export default function DomainSearch() {
                     setUseCustom(false);
                     setCustomExtension('');
                   }}
-                  className="px-2 text-purple-400 hover:text-purple-300"
+                  className="px-3 text-slate-400 hover:text-slate-300 transition-colors"
                   title="Back to preset extensions"
                 >
                   ✕
@@ -79,31 +79,31 @@ export default function DomainSearch() {
           </div>
           <button
             type="submit"
-            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold rounded-lg transition shadow-lg shadow-purple-500/50"
+            className="px-10 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-violet-500/50 hover:shadow-violet-500/70 hover:scale-[1.02]"
           >
             Search
           </button>
         </div>
         
         {useCustom && (
-          <div className="text-center">
-            <p className="text-sm text-green-400 mb-1">
+          <div className="text-center bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-3 px-4">
+            <p className="text-sm text-emerald-400 font-medium mb-1">
               ✨ Custom Extension Mode - Register ANY extension you want!
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-400">
               Be the first to own your unique .{customExtension || 'anything'} identity
             </p>
           </div>
         )}
       </form>
       
-      <div className="mt-4 flex flex-wrap gap-2">
-        <span className="text-gray-400 text-sm">Popular:</span>
+      <div className="mt-6 flex flex-wrap gap-3 justify-center">
+        <span className="text-slate-400 text-sm font-medium">Popular searches:</span>
         {['defi', 'nft', 'web3', 'dao', 'metaverse'].map((term) => (
           <button
             key={term}
             onClick={() => setSearchTerm(term)}
-            className="px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-sm hover:bg-purple-900/50 transition"
+            className="px-4 py-1.5 bg-slate-800/50 border border-slate-700/50 text-slate-300 rounded-lg text-sm hover:bg-slate-800 hover:border-violet-500/30 hover:text-violet-300 transition-all"
           >
             {term}
           </button>
