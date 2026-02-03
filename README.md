@@ -3,10 +3,23 @@
 The **truly unlimited Web3 naming hub** - register ANY extension you want! Choose from 15+ preset chains or create your own .anything extension. All with **lifetime ownership** - pay once, own forever.
 
 > **🚀 Want to deploy your own instance? See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute deployment guide!**
+>
+> **💰 What does deployment cost?** Check [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) - Start with Polygon (~$0.05) or BSC (~$1)!
 
 ![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3+-38B2AC?style=flat-square&logo=tailwind-css)
+
+## 📚 Documentation Quick Links
+
+| Guide | Description |
+|-------|-------------|
+| [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
+| [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
+| [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **How to add new blockchains** (15-minute guide) |
+| [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) | Production deployment guide |
+| [PAYMENTS.md](./PAYMENTS.md) | Payment collection setup |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Platform deployment options |
 
 ## 🎯 What Makes This Different?
 
@@ -244,9 +257,13 @@ Think of it like this: ENS is one naming service, Unstoppable Domains is another
 5. Update chain configuration in `lib/wagmi.ts`
 6. Integrate real blockchain transactions (replace mock alerts)
 
-**💰 Important**: See [PAYMENTS.md](./PAYMENTS.md) for a complete guide on how to receive payments from domain registrations.
+**💰 Deployment Costs**: See [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) for estimated costs per blockchain (start with Polygon for ~$0.05!)
 
-**🚀 Deployment Guide**: See [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) for detailed contract deployment instructions.
+**💸 Payment Setup**: See [PAYMENTS.md](./PAYMENTS.md) for a complete guide on how to receive payments from domain registrations.
+
+**🚀 Production Setup**: See [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) for detailed contract deployment instructions.
+
+**🔧 Adding New Chains**: See [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) to learn how to easily add new blockchain networks.
 
 ## 📝 Environment Variables
 
