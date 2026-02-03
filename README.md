@@ -2,9 +2,48 @@
 
 A **Web3 naming platform** supporting **Solana and EVM chains** - Register ANY domain extension you want with lifetime ownership!
 
-![Next.js](https://img.shields.io/badge/Next.js-16+-black?style=flat-square&logo=next.js)
+> **🏗️ Full-Stack Architecture:** This is a complete **frontend AND backend** application! See [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) for details.
+>
+> **🚀 Want to deploy your own instance? See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute deployment guide!**
+>
+> **💰 What does deployment cost?** Check [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) - Start with Polygon (~$0.05) or BSC (~$1)!
+
+![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
-![Solana](https://img.shields.io/badge/Solana-Supported-9945FF?style=flat-square&logo=solana)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3+-38B2AC?style=flat-square&logo=tailwind-css)
+
+## 📚 Documentation Quick Links
+
+| Guide | Description |
+|-------|-------------|
+| [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) | **Quick Reference** - "Do I have frontend AND backend?" - YES! |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | **Full-stack architecture guide** - Frontend, Backend & Blockchain explained |
+| [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
+| [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
+| [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **How to add new blockchains** (15-minute guide) |
+| [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) | Production deployment guide |
+| [PAYMENTS.md](./PAYMENTS.md) | Payment collection setup |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Platform deployment options |
+
+## 🎯 What Makes This Different?
+
+**Not just multi-chain - UNLIMITED extensions!**
+
+AtomicFizzCaps is the only platform where you can register:
+- ✅ Popular chains: .fizz, .eth, .sol, .bnb, .arb, .op, .poly, .avax, .ftm
+- ✅ Web3 standards: .crypto, .nft, .dao, .web3, .blockchain
+- ✅ **ANY custom extension: .myname, .cool, .whatever, .anything!**
+
+### 🚀 Why Unlimited Extensions?
+
+- **🎨 Total Freedom** - Want .mycompany? .mycommunity? .myDAO? Just register it!
+- **💎 First Mover Advantage** - Be the first to own an entire new extension
+- **🔮 Future-Proof** - Support for extensions that don't even exist yet
+- **🌐 True Web3** - No gatekeepers deciding which extensions are "valid"
+
+## 🆔 Register ANY Extension You Want
+
+### Preset Popular Extensions (Quick Select)
 
 ## 🚀 Quick Start
 
@@ -53,28 +92,44 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🏗️ Project Structure
 
-```
+This is a **full-stack Web3 application** with both frontend and backend components. See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture guide.
+
+\`\`\`
 supreme-goggles/
-├── app/                         # Next.js App Router
-│   ├── layout.tsx              # Root layout with providers
-│   ├── page.tsx                # Landing page
-│   ├── search/                 # Domain search
-│   ├── register/               # Domain registration
-│   ├── dashboard/              # User dashboard
-│   └── manage/[domain]/        # Domain management
-├── components/                  # React components
-│   ├── Navbar.tsx              # Navigation with dual wallet
-│   ├── DualWalletConnect.tsx   # Solana/EVM wallet toggle
-│   └── SolanaWalletProvider.tsx # Solana wallet context
-├── lib/                         # Utilities and configs
-│   ├── wagmi.ts                # EVM wallet config
-│   ├── solana.ts               # Solana wallet config
-│   ├── blockchain.ts           # Blockchain interactions
-│   ├── contract.ts             # Contract utilities
-│   └── mockData.ts             # Demo data
-└── contracts/                   # Smart contract ABIs
-    └── DomainRegistry.json     # Domain registry ABI
-```
+├── app/                      # Next.js 14 App Router (Frontend Pages)
+│   ├── layout.tsx           # Root layout with Web3 providers
+│   ├── page.tsx             # Landing page
+│   ├── search/              # Domain search results
+│   ├── register/            # Domain registration
+│   ├── dashboard/           # User dashboard
+│   ├── manage/[domain]/     # Domain management
+│   └── api/                 # Backend API Routes (Server-Side)
+│       ├── domains/         # Domain-related endpoints
+│       └── health/          # Health check endpoint
+├── components/              # Reusable React components (Frontend)
+│   ├── Navbar.tsx          # Navigation with wallet connect
+│   ├── DomainSearch.tsx    # Search bar component
+│   ├── DomainCard.tsx      # Domain display card
+│   └── Footer.tsx          # Footer component
+├── lib/                     # Backend utilities and configs
+│   ├── wagmi.ts            # Wagmi/RainbowKit config
+│   ├── contract.ts         # Contract utilities
+│   ├── blockchain.ts       # Blockchain transaction functions
+│   └── mockData.ts         # Mock data for demo
+└── contracts/               # Smart contract ABIs (Blockchain Layer)
+    ├── DomainRegistry.json # Domain registry ABI
+    └── DomainRegistryExample.sol # Solidity source code
+\`\`\`
+
+### Architecture Overview
+
+**Three-Tier Full-Stack Architecture:**
+
+1. **Frontend (Client-Side)**: React components, pages, and UI in `/app` and `/components`
+2. **Backend (Server-Side)**: Next.js API routes in `/app/api` and utilities in `/lib`
+3. **Blockchain (Decentralized)**: Smart contracts in `/contracts` deployed on multiple blockchains
+
+📖 **Read [ARCHITECTURE.md](./ARCHITECTURE.md) for complete details on the frontend/backend architecture.**
 
 ## 🎨 Tech Stack
 

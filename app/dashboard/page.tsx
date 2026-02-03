@@ -15,27 +15,32 @@ export default function DashboardPage() {
   
   const [userDomains, setUserDomains] = useState<Domain[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchDomains = async () => {
       if (!address) {
         setUserDomains([]);
         setIsLoading(false);
+        setFetchError(null);
         return;
       }
-      
+
       setIsLoading(true);
-      
+      setFetchError(null);
+
       try {
         // Fetch domains from blockchain or mock data
         const domains = await getUserDomainsFromChain(
           address,
           publicClient as any
         );
-        
+
         setUserDomains(domains);
       } catch (error) {
         console.error('Failed to fetch domains:', error);
+        // Set error state to inform user
+        setFetchError('Failed to fetch domains from blockchain. Showing cached data.');
         // Fallback to mock data
         const mockDomains = getMockDomains(address);
         setUserDomains(mockDomains);
@@ -43,7 +48,7 @@ export default function DashboardPage() {
         setIsLoading(false);
       }
     };
-    
+
     fetchDomains();
   }, [address, publicClient]);
 
@@ -80,6 +85,20 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {fetchError && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <span className="text-red-400 text-xl">⚠️</span>
+            <div>
+              <p className="text-red-400 font-semibold mb-1">Fetch Error</p>
+              <p className="text-red-300 text-sm">
+                {fetchError}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-12 text-center">

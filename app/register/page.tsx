@@ -56,10 +56,12 @@ function RegisterForm() {
         // Note: wagmi's walletClient is compatible with EIP-1193 provider interface
         const provider = new BrowserProvider(walletClient as any);
         const signer = await provider.getSigner();
-        
-        // Convert price to BigInt (wei/smallest unit)
-        const paymentAmount = BigInt(Math.floor(priceInfo.price * 1e18));
-        
+
+        // Convert price to wei using parseEther to avoid floating-point precision loss
+        // parseEther handles the conversion properly without precision issues
+        const { parseEther } = await import('ethers');
+        const paymentAmount = parseEther(priceInfo.price.toString());
+
         const result = await registerDomainOnChain(
           fullDomain,
           ext,

@@ -17,14 +17,16 @@ function SearchResults() {
   
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const [checkError, setCheckError] = useState<string | null>(null);
   const [priceInfo, setPriceInfo] = useState<{ price: number; currency: string; currencySymbol: string }>({ price: 0, currency: 'ETH', currencySymbol: 'ETH' });
 
   useEffect(() => {
     const checkAvailability = async () => {
       if (!domain) return;
-      
+
       setIsChecking(true);
-      
+      setCheckError(null);
+
       try {
         // Check availability on blockchain or use mock data
         const available = await checkDomainAvailabilityOnChain(
@@ -32,11 +34,13 @@ function SearchResults() {
           ext,
           publicClient as any
         );
-        
+
         setIsAvailable(available);
         setPriceInfo(getDomainPrice(domain, ext));
       } catch (error) {
         console.error('Failed to check availability:', error);
+        // Set error state to inform user
+        setCheckError('Failed to check blockchain availability. Showing cached data.');
         // Fallback to mock data
         const available = checkMockAvailability(domain, ext);
         setIsAvailable(available);
@@ -45,7 +49,7 @@ function SearchResults() {
         setIsChecking(false);
       }
     };
-    
+
     checkAvailability();
   }, [domain, ext, publicClient]);
 
@@ -75,6 +79,20 @@ function SearchResults() {
                 <p className="text-amber-400 font-semibold mb-1">Demo Mode</p>
                 <p className="text-amber-300 text-sm">
                   Availability shown is simulated. Enable production mode to check real blockchain availability.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {checkError && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-red-400 text-xl">⚠️</span>
+              <div>
+                <p className="text-red-400 font-semibold mb-1">Availability Check Error</p>
+                <p className="text-red-300 text-sm">
+                  {checkError}
                 </p>
               </div>
             </div>
