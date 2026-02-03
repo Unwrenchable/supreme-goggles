@@ -1,7 +1,34 @@
 import { ethers } from 'ethers';
 import DomainRegistryABI from '@/contracts/DomainRegistry.json';
 
-export const DOMAIN_REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000';
+// ===================================================================
+// PRODUCTION MODE CONFIGURATION
+// ===================================================================
+export const USE_PRODUCTION_MODE = process.env.NEXT_PUBLIC_USE_PRODUCTION_MODE === 'true';
+
+// ===================================================================
+// SMART CONTRACT ADDRESSES (Multi-Chain Support)
+// ===================================================================
+// Each blockchain network has its own deployed contract
+export const CONTRACT_ADDRESSES = {
+  // Ethereum Mainnet & L2s
+  ethereum: process.env.NEXT_PUBLIC_ETHEREUM_CONTRACT_ADDRESS || '',
+  arbitrum: process.env.NEXT_PUBLIC_ARBITRUM_CONTRACT_ADDRESS || '',
+  optimism: process.env.NEXT_PUBLIC_OPTIMISM_CONTRACT_ADDRESS || '',
+  base: process.env.NEXT_PUBLIC_BASE_CONTRACT_ADDRESS || '',
+  
+  // Other EVM Chains
+  polygon: process.env.NEXT_PUBLIC_POLYGON_CONTRACT_ADDRESS || '',
+  bsc: process.env.NEXT_PUBLIC_BSC_CONTRACT_ADDRESS || '',
+  avalanche: process.env.NEXT_PUBLIC_AVALANCHE_CONTRACT_ADDRESS || '',
+  fantom: process.env.NEXT_PUBLIC_FANTOM_CONTRACT_ADDRESS || '',
+  
+  // Testnet
+  sepolia: process.env.NEXT_PUBLIC_SEPOLIA_CONTRACT_ADDRESS || '',
+  
+  // Solana
+  solana: process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '',
+} as const;
 
 // IMPORTANT: Payment Collection Configuration
 // This is where YOU receive payments when users register domains
@@ -10,6 +37,7 @@ export const PAYMENT_RECIPIENT_ADDRESS = process.env.NEXT_PUBLIC_PAYMENT_RECIPIE
 
 // For Solana-based domains (.fizz, .atomic, .sol)
 export const SOLANA_PAYMENT_ADDRESS = process.env.NEXT_PUBLIC_SOLANA_PAYMENT_ADDRESS || '';
+export const SOLANA_NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
 
 /**
  * PAYMENT FLOW:
@@ -21,9 +49,75 @@ export const SOLANA_PAYMENT_ADDRESS = process.env.NEXT_PUBLIC_SOLANA_PAYMENT_ADD
  * See PAYMENTS.md for complete payment setup guide
  */
 
-export const getDomainRegistryContract = (signerOrProvider: ethers.Provider | ethers.Signer) => {
+/**
+ * Get the contract address for a specific blockchain network
+ */
+export const getContractAddressForChain = (chainName: string): string => {
+  const chainKey = chainName.toLowerCase() as keyof typeof CONTRACT_ADDRESSES;
+  return CONTRACT_ADDRESSES[chainKey] || '';
+};
+
+/**
+ * Get the blockchain network for a domain extension
+ */
+export const getChainForExtension = (extension: string): string => {
+  const extensionMap: Record<string, string> = {
+    '.fizz': 'solana',
+    '.atomic': 'solana',
+    '.sol': 'solana',
+    '.eth': 'ethereum',
+    '.arb': 'arbitrum',
+    '.op': 'optimism',
+    '.base': 'base',
+    '.bnb': 'bsc',
+    '.poly': 'polygon',
+    '.avax': 'avalanche',
+    '.ftm': 'fantom',
+    '.crypto': 'ethereum',
+    '.nft': 'ethereum',
+    '.dao': 'ethereum',
+    '.web3': 'ethereum',
+    '.blockchain': 'ethereum',
+  };
+  
+  return extensionMap[extension] || 'ethereum';
+};
+
+/**
+ * Get the contract address for a domain extension
+ */
+export const getContractAddressForExtension = (extension: string): string => {
+  const chain = getChainForExtension(extension);
+  return getContractAddressForChain(chain);
+};
+
+/**
+ * Check if production mode is enabled and configured for a specific extension
+ */
+export const isProductionConfigured = (extension: string): boolean => {
+  if (!USE_PRODUCTION_MODE) return false;
+  
+  const contractAddress = getContractAddressForExtension(extension);
+  const chain = getChainForExtension(extension);
+  
+  // For Solana chains, also check payment address
+  if (chain === 'solana') {
+    return !!(contractAddress && SOLANA_PAYMENT_ADDRESS);
+  }
+  
+  // For EVM chains, check contract and payment recipient
+  return !!(contractAddress && PAYMENT_RECIPIENT_ADDRESS !== '0x0000000000000000000000000000000000000000');
+};
+
+export const getDomainRegistryContract = (signerOrProvider: ethers.Provider | ethers.Signer, extension: string = '.eth') => {
+  const contractAddress = getContractAddressForExtension(extension);
+  
+  if (!contractAddress) {
+    throw new Error(`No contract address configured for extension: ${extension}`);
+  }
+  
   return new ethers.Contract(
-    DOMAIN_REGISTRY_ADDRESS,
+    contractAddress,
     DomainRegistryABI.abi,
     signerOrProvider
   );
