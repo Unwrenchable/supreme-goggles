@@ -34,6 +34,8 @@
     "typescript": "^5"
   },
   "overrides": {
-    "valtio": "^2.3.0"
+    "valtio": "^2.3.0",
+    "lodash": "^4.17.23",
+    "elliptic": "^6.6.1"
   }
 }
