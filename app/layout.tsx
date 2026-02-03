@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { config } from '@/lib/wagmi';
+import { SolanaWalletProvider } from '@/components/SolanaWalletProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
@@ -36,13 +37,15 @@ export default function RootLayout({
               showRecentTransactions={true}
               coolMode={true}
             >
-              <div className="min-h-screen flex flex-col">
-                <Navbar />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </div>
+              <SolanaWalletProvider>
+                <div className="min-h-screen flex flex-col">
+                  <Navbar />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </div>
+              </SolanaWalletProvider>
             </RainbowKitProvider>
           </QueryClientProvider>
         </WagmiProvider>
