@@ -23,7 +23,11 @@ function SearchResults() {
   }, [domain, ext]);
 
   const fullDomain = `${domain}${ext}`;
-  const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO];
+  const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
+    name: ext.toUpperCase().replace('.', ''),
+    chain: 'Custom Extension',
+    description: 'Your unique custom extension'
+  };
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -35,7 +39,7 @@ function SearchResults() {
             <div>
               <h2 className="text-3xl font-bold text-white mb-2">{fullDomain}</h2>
               <p className="text-gray-400">
-                {domain.length} characters • {extensionInfo ? extensionInfo.chain : 'Multi-Chain'} • Premium identity
+                {domain.length} characters • {extensionInfo.chain} • {extensionInfo.chain === 'Custom Extension' ? '✨ First of its kind!' : 'Premium identity'}
               </p>
             </div>
             <div className={`px-6 py-3 rounded-full font-bold text-lg ${
@@ -53,6 +57,11 @@ function SearchResults() {
                 <div className="inline-block px-4 py-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-bold rounded-full mb-4">
                   ✨ LIFETIME OWNERSHIP
                 </div>
+                {extensionInfo.chain === 'Custom Extension' && (
+                  <p className="text-green-400 text-sm mb-3">
+                    🎉 Be the FIRST to own a {ext} extension! Set the trend!
+                  </p>
+                )}
                 <p className="text-gray-400 text-sm mb-2">One-time purchase, yours forever</p>
                 <p className="text-4xl font-bold text-white mb-2">{price.toFixed(3)} ETH</p>
                 <p className="text-gray-400 text-lg">${(price * 3000).toFixed(2)} USD</p>
