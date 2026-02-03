@@ -7,6 +7,7 @@ import { BrowserProvider } from 'ethers';
 import { getDomainPrice } from '@/lib/mockData';
 import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE } from '@/lib/contract';
 import { registerDomainOnChain, formatTransactionError } from '@/lib/blockchain';
+import WalletQRInfo from '@/components/WalletQRInfo';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
@@ -214,9 +215,12 @@ function RegisterForm() {
           )}
 
           {!isConnected ? (
-            <div className="text-center py-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
-              <p className="text-amber-400 font-medium">Please connect your wallet to continue</p>
-            </div>
+            <>
+              <WalletQRInfo />
+              <div className="text-center py-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
+                <p className="text-amber-400 font-medium">Please connect your wallet to continue</p>
+              </div>
+            </>
           ) : (
             <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 mb-6">
               <p className="text-violet-300 text-sm font-medium">

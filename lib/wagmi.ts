@@ -11,6 +11,14 @@ import {
   fantom
 } from 'wagmi/chains';
 
+/**
+ * Wagmi configuration with RainbowKit
+ * 
+ * QR Code Support:
+ * - RainbowKit automatically displays QR codes for WalletConnect-enabled wallets
+ * - Users can scan the QR code with mobile wallets (MetaMask, Trust Wallet, Rainbow, etc.)
+ * - QR codes appear in the wallet connection modal when selecting WalletConnect options
+ */
 export const config = getDefaultConfig({
   appName: 'AtomicFizzCaps Domain Registry',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',

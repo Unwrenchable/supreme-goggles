@@ -33,6 +33,8 @@ export default function RootLayout({
                 fontStack: 'system',
                 overlayBlur: 'small',
               })}
+              showRecentTransactions={true}
+              coolMode={true}
             >
               <div className="min-h-screen flex flex-col">
                 <Navbar />
