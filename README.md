@@ -216,21 +216,248 @@ The app currently runs with mock data for demonstration. To connect to a real sm
 
 ## 📝 Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect Cloud Project ID | Yes |
-| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Domain Registry contract address | Yes |
+Copy `.env.example` to `.env.local` and configure the following:
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect Cloud Project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com/) | Yes | - |
+| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Domain Registry contract address | No | Uses mock data |
+| `NEXT_PUBLIC_NETWORK` | Blockchain network to connect to | No | mainnet |
 
 ## 🚢 Deployment
 
-### Deploy to Vercel
+**📖 See [DEPLOYMENT.md](./DEPLOYMENT.md) for the complete deployment guide with detailed instructions for all platforms.**
 
-\`\`\`bash
-npm run build
-vercel deploy
-\`\`\`
+This Next.js application can be deployed to various platforms. You have multiple options depending on your needs and technical expertise.
 
-Don't forget to set environment variables in your Vercel project settings!
+### Understanding Web2 Hosting for Web3 Apps
+
+**Important:** This Web3 naming service platform is a **Next.js web application** that needs to be hosted on traditional Web2 infrastructure (like Vercel, Netlify, or your own server). The Web3 part refers to the smart contracts and blockchain interactions, not the hosting.
+
+**Here's how it works:**
+1. **Deploy the web app** to a Web2 platform (Vercel, your own server, etc.)
+2. **Access via your URL** (custom domain like `yourplatform.com` or provided subdomain)
+3. **Users connect** their Web3 wallets through your hosted website
+4. **Smart contracts** handle the blockchain/Web3 functionality
+
+**You DO NOT need to "deploy to Web2 first then make your platform's new URL on the platform" - you simply:**
+1. Deploy this Next.js app to any hosting provider
+2. Configure your custom domain (optional)
+3. Set up your smart contract addresses
+4. Your platform is live!
+
+### Option 1: Deploy to Vercel (Recommended - Easiest)
+
+Vercel is the easiest way to deploy Next.js applications with zero configuration.
+
+#### Quick Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Unwrenchable/supreme-goggles)
+
+#### Manual Deploy
+
+1. **Install Vercel CLI:**
+   \`\`\`bash
+   npm install -g vercel
+   \`\`\`
+
+2. **Build and deploy:**
+   \`\`\`bash
+   npm run build
+   vercel deploy
+   \`\`\`
+
+3. **Set environment variables in Vercel dashboard:**
+   - Go to your project settings
+   - Navigate to "Environment Variables"
+   - Add:
+     - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
+     - `NEXT_PUBLIC_CONTRACT_ADDRESS` (optional, uses mock data if not set)
+
+4. **Redeploy after setting variables:**
+   \`\`\`bash
+   vercel deploy --prod
+   \`\`\`
+
+#### Using a Custom Domain with Vercel
+
+1. Go to your Vercel project dashboard
+2. Navigate to "Settings" → "Domains"
+3. Add your custom domain (e.g., `yourplatform.com`)
+4. Follow Vercel's instructions to update your DNS records
+5. Your platform will be accessible at your custom domain!
+
+**Vercel provides:** Free SSL, automatic deployments, serverless functions, and CDN.
+
+### Option 2: Deploy to Netlify
+
+Another excellent option for Next.js applications.
+
+1. **Install Netlify CLI:**
+   \`\`\`bash
+   npm install -g netlify-cli
+   \`\`\`
+
+2. **Build and deploy:**
+   \`\`\`bash
+   npm run build
+   netlify deploy --prod
+   \`\`\`
+
+3. **Set environment variables:**
+   - Go to Site settings → Environment variables
+   - Add your environment variables
+
+4. **Custom domain:** Add in Site settings → Domain management
+
+### Option 3: Self-Hosting (Your Own Server/VPS)
+
+Deploy to your own server for complete control.
+
+#### Requirements
+- Node.js 18+ installed
+- A server/VPS (DigitalOcean, AWS, etc.)
+- Domain name (optional)
+- SSL certificate (use Let's Encrypt with Certbot)
+
+#### Steps
+
+1. **Clone repository on your server:**
+   \`\`\`bash
+   git clone https://github.com/Unwrenchable/supreme-goggles.git
+   cd supreme-goggles
+   \`\`\`
+
+2. **Install dependencies:**
+   \`\`\`bash
+   npm install
+   \`\`\`
+
+3. **Set up environment variables:**
+   \`\`\`bash
+   cp .env.example .env.local
+   # Edit .env.local with your values
+   nano .env.local
+   \`\`\`
+
+4. **Build the application:**
+   \`\`\`bash
+   npm run build
+   \`\`\`
+
+5. **Start the production server:**
+   \`\`\`bash
+   npm start
+   \`\`\`
+
+   Or use PM2 for process management:
+   \`\`\`bash
+   npm install -g pm2
+   pm2 start npm --name "supreme-goggles" -- start
+   pm2 save
+   pm2 startup
+   \`\`\`
+
+6. **Set up reverse proxy with Nginx:**
+   \`\`\`nginx
+   server {
+       listen 80;
+       server_name yourplatform.com;
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   \`\`\`
+
+7. **Set up SSL with Let's Encrypt:**
+   \`\`\`bash
+   sudo certbot --nginx -d yourplatform.com
+   \`\`\`
+
+### Option 4: Deploy to Other Platforms
+
+This Next.js app can also be deployed to:
+- **AWS Amplify:** Use the Amplify Console
+- **Railway:** Connect your GitHub repo
+- **Render:** Deploy with automatic deploys from GitHub
+- **DigitalOcean App Platform:** One-click deployment
+- **Heroku:** Use the Heroku CLI
+
+### Custom Domain Configuration
+
+**For any platform**, you can use your own custom domain:
+
+1. **Purchase a domain** from any registrar (GoDaddy, Namecheap, Google Domains, etc.)
+2. **Update DNS records** to point to your hosting platform:
+   - For Vercel/Netlify: Follow their domain setup wizard
+   - For self-hosted: Point A record to your server IP
+3. **Wait for DNS propagation** (can take 24-48 hours)
+4. **Your platform is live** at your custom domain!
+
+### Environment Variables Configuration
+
+After deployment, configure these required variables:
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect Cloud Project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com/) | Yes | - |
+| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Domain Registry contract address | No | Uses mock data |
+| `NEXT_PUBLIC_NETWORK` | Blockchain network (mainnet, sepolia, etc.) | No | mainnet |
+
+### Connecting to Real Smart Contracts
+
+To move from demo mode to production with real blockchain interactions:
+
+1. **Deploy the Domain Registry contract** to your chosen blockchain network
+2. **Update environment variables:**
+   \`\`\`
+   NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
+   NEXT_PUBLIC_NETWORK=mainnet  # or your chosen network
+   \`\`\`
+3. **Update chain configuration** in `lib/wagmi.ts` if needed
+4. **Redeploy** your application
+
+### Troubleshooting Deployment
+
+**Issue:** "Environment variables not working"
+- **Solution:** Make sure you've set them in your platform's dashboard AND redeployed
+
+**Issue:** "Wallet not connecting"
+- **Solution:** Check your WalletConnect Project ID is valid and the app URL is added to allowed origins in WalletConnect Cloud
+
+**Issue:** "Custom domain not working"
+- **Solution:** Verify DNS records are correct and wait for propagation (up to 48 hours)
+
+**Issue:** "Build failing"
+- **Solution:** Ensure Node.js version is 18+ and all dependencies are installed correctly
+
+**Issue:** "Contract interactions failing"
+- **Solution:** Verify contract address and network configuration match your deployed contract
+
+### Deployment Checklist
+
+- [ ] Set up WalletConnect Project ID
+- [ ] Configure environment variables
+- [ ] Build application locally to test (`npm run build`)
+- [ ] Deploy to chosen platform
+- [ ] Configure custom domain (optional)
+- [ ] Set environment variables in hosting platform
+- [ ] Test wallet connection
+- [ ] Test domain registration flow
+- [ ] Set up SSL certificate (automatic on Vercel/Netlify)
+- [ ] Monitor application logs for errors
+
+### Need Help?
+
+- Check the [Next.js Deployment Documentation](https://nextjs.org/docs/deployment)
+- Join our Discord (Coming soon)
+- Open an issue on GitHub
 
 ## 🤝 Contributing
 
