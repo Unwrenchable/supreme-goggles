@@ -16,7 +16,8 @@ import {
  * 
  * QR Code Support:
  * - RainbowKit automatically displays QR codes for WalletConnect-enabled wallets
- * - Users can scan the QR code with mobile wallets (MetaMask, Trust Wallet, Rainbow, etc.)
+ * - Solana Wallets: Users can scan with Phantom, Solflare, Backpack, Glow, Ultimate
+ * - EVM Wallets: Users can scan with MetaMask, Trust Wallet, Rainbow, Coinbase, etc.
  * - QR codes appear in the wallet connection modal when selecting WalletConnect options
  */
 export const config = getDefaultConfig({

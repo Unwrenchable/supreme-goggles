@@ -3,10 +3,23 @@
 The **truly unlimited Web3 naming hub** - register ANY extension you want! Choose from 15+ preset chains or create your own .anything extension. All with **lifetime ownership** - pay once, own forever.
 
 > **🚀 Want to deploy your own instance? See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute deployment guide!**
+>
+> **💰 What does deployment cost?** Check [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) - Start with Polygon (~$0.05) or BSC (~$1)!
 
 ![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3+-38B2AC?style=flat-square&logo=tailwind-css)
+
+## 📚 Documentation Quick Links
+
+| Guide | Description |
+|-------|-------------|
+| [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
+| [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
+| [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **How to add new blockchains** (15-minute guide) |
+| [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) | Production deployment guide |
+| [PAYMENTS.md](./PAYMENTS.md) | Payment collection setup |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Platform deployment options |
 
 ## 🎯 What Makes This Different?
 
@@ -102,6 +115,8 @@ Edit `.env.local` and add your WalletConnect Project ID:
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
 \`\`\`
 
+**Note about `NEXT_PUBLIC_` prefix:** This is a Next.js framework requirement. Variables with this prefix are accessible in the browser, which is necessary for wallet connections and blockchain interactions. Learn more in the `.env.example` file.
+
 3. **Run the development server:**
 
 \`\`\`bash
@@ -119,7 +134,9 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - Scan the QR code with your mobile wallet app
 - Approve the connection on your phone
 
-Supports MetaMask Mobile, Trust Wallet, Rainbow, Coinbase Wallet, and 300+ others.
+**Solana Wallets (for .fizz, .atomic, .sol):** Phantom, Solflare, Backpack, Glow, Ultimate
+
+**EVM Wallets (Ethereum, Polygon, BSC, etc.):** MetaMask Mobile, Trust Wallet, Rainbow, Coinbase Wallet, and 300+ others.
 
 📖 **See [MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md) for detailed instructions and troubleshooting.**
 
@@ -222,14 +239,33 @@ AtomicFizzCaps Universal Naming Service is built for the future:
 
 The app currently runs with mock data for demonstration. To connect to a real smart contract and accept real payments:
 
-1. **Deploy the Domain Registry contract** to your chosen network(s)
+### ⚠️ IMPORTANT: You Must Deploy Your Own Contracts
+
+**This is YOUR naming service platform** - like creating your own GoDaddy or Namecheap for Web3 domains. You are NOT connecting to existing ENS (Ethereum Name Service) or Solana Name Service contracts. Instead:
+
+- **YOU deploy your own DomainRegistry contracts** on each blockchain
+- **YOU control the pricing and features** of your naming service
+- **YOU receive the payments** when users register domains
+- **YOU run your own competing naming service platform**
+
+Think of it like this: ENS is one naming service, Unstoppable Domains is another, and this codebase lets you create YOUR OWN third option.
+
+### Setup Steps:
+
+1. **Deploy the Domain Registry contract** to your chosen network(s) - See `contracts/DomainRegistryExample.sol`
 2. **Configure payment collection** - See [PAYMENTS.md](./PAYMENTS.md) for complete guide
-3. Update `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env.local`
+3. Update `NEXT_PUBLIC_ETHEREUM_CONTRACT_ADDRESS` (or other chain) with YOUR deployed contract address in `.env.local`
 4. Update `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` with your wallet address
 5. Update chain configuration in `lib/wagmi.ts`
 6. Integrate real blockchain transactions (replace mock alerts)
 
-**💰 Important**: See [PAYMENTS.md](./PAYMENTS.md) for a complete guide on how to receive payments from domain registrations.
+**💰 Deployment Costs**: See [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) for estimated costs per blockchain (start with Polygon for ~$0.05!)
+
+**💸 Payment Setup**: See [PAYMENTS.md](./PAYMENTS.md) for a complete guide on how to receive payments from domain registrations.
+
+**🚀 Production Setup**: See [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) for detailed contract deployment instructions.
+
+**🔧 Adding New Chains**: See [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) to learn how to easily add new blockchain networks.
 
 ## 📝 Environment Variables
 
@@ -241,6 +277,8 @@ Copy `.env.example` to `.env.local` and configure the following:
 | `NEXT_PUBLIC_CONTRACT_ADDRESS` | Domain Registry contract address | No | Uses mock data |
 | `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` | **YOUR wallet address** where payments are sent | No | - |
 | `NEXT_PUBLIC_NETWORK` | Blockchain network to connect to | No | mainnet |
+
+**About the `NEXT_PUBLIC_` prefix:** All Web3-related variables in this project use the `NEXT_PUBLIC_` prefix because this is a Next.js framework requirement. Variables with this prefix are accessible to the client-side (browser) JavaScript code, which is necessary for Web3 wallet connections and smart contract interactions. See `.env.example` for more details.
 
 **Payment Setup**: See [PAYMENTS.md](./PAYMENTS.md) for detailed payment collection configuration.
 

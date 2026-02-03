@@ -97,7 +97,16 @@ After selecting WalletConnect:
 
 ## Supported Wallets
 
-The QR code works with 300+ wallets including:
+### Solana Wallets (Primary - for .fizz, .atomic, .sol)
+The QR code works with Solana-native wallets:
+- **Phantom** - Most popular Solana wallet 🟣
+- **Solflare** - Feature-rich with staking
+- **Backpack** - Modern with xNFT support
+- **Glow** - Governance-focused
+- **Ultimate** - Multi-chain with Solana
+
+### EVM Wallets (for Ethereum, Polygon, BSC, etc.)
+The QR code also works with 300+ EVM wallets including:
 - MetaMask Mobile
 - Trust Wallet  
 - Rainbow Wallet
