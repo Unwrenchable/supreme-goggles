@@ -44,7 +44,7 @@ function validateExtension(extension: string): { valid: boolean; error?: string;
   }
 
   // Check if it's a known extension or a custom one
-  const isKnownExtension = DOMAIN_EXTENSIONS.includes(extension as any);
+  const isKnownExtension = (DOMAIN_EXTENSIONS as readonly string[]).includes(extension);
 
   // For custom extensions, validate format
   if (!isKnownExtension) {
