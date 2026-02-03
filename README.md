@@ -102,6 +102,8 @@ Edit `.env.local` and add your WalletConnect Project ID:
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
 \`\`\`
 
+**Note about `NEXT_PUBLIC_` prefix:** This is a Next.js framework requirement. Variables with this prefix are accessible in the browser, which is necessary for wallet connections and blockchain interactions. Learn more in the `.env.example` file.
+
 3. **Run the development server:**
 
 \`\`\`bash
@@ -222,14 +224,29 @@ AtomicFizzCaps Universal Naming Service is built for the future:
 
 The app currently runs with mock data for demonstration. To connect to a real smart contract and accept real payments:
 
-1. **Deploy the Domain Registry contract** to your chosen network(s)
+### ⚠️ IMPORTANT: You Must Deploy Your Own Contracts
+
+**This is YOUR naming service platform** - like creating your own GoDaddy or Namecheap for Web3 domains. You are NOT connecting to existing ENS (Ethereum Name Service) or Solana Name Service contracts. Instead:
+
+- **YOU deploy your own DomainRegistry contracts** on each blockchain
+- **YOU control the pricing and features** of your naming service
+- **YOU receive the payments** when users register domains
+- **YOU run your own competing naming service platform**
+
+Think of it like this: ENS is one naming service, Unstoppable Domains is another, and this codebase lets you create YOUR OWN third option.
+
+### Setup Steps:
+
+1. **Deploy the Domain Registry contract** to your chosen network(s) - See `contracts/DomainRegistryExample.sol`
 2. **Configure payment collection** - See [PAYMENTS.md](./PAYMENTS.md) for complete guide
-3. Update `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env.local`
+3. Update `NEXT_PUBLIC_ETHEREUM_CONTRACT_ADDRESS` (or other chain) with YOUR deployed contract address in `.env.local`
 4. Update `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` with your wallet address
 5. Update chain configuration in `lib/wagmi.ts`
 6. Integrate real blockchain transactions (replace mock alerts)
 
 **💰 Important**: See [PAYMENTS.md](./PAYMENTS.md) for a complete guide on how to receive payments from domain registrations.
+
+**🚀 Deployment Guide**: See [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) for detailed contract deployment instructions.
 
 ## 📝 Environment Variables
 
@@ -241,6 +258,8 @@ Copy `.env.example` to `.env.local` and configure the following:
 | `NEXT_PUBLIC_CONTRACT_ADDRESS` | Domain Registry contract address | No | Uses mock data |
 | `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` | **YOUR wallet address** where payments are sent | No | - |
 | `NEXT_PUBLIC_NETWORK` | Blockchain network to connect to | No | mainnet |
+
+**About the `NEXT_PUBLIC_` prefix:** All variables use the `NEXT_PUBLIC_` prefix because this is a Next.js framework requirement. Variables with this prefix are accessible to the client-side (browser) JavaScript code, which is necessary for Web3 wallet connections and smart contract interactions. See `.env.example` for more details.
 
 **Payment Setup**: See [PAYMENTS.md](./PAYMENTS.md) for detailed payment collection configuration.
 
