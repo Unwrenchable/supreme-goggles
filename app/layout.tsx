@@ -20,15 +20,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="antialiased bg-gradient-to-br from-gray-900 via-purple-900/20 to-blue-900/20 min-h-screen font-sans"
+        className="antialiased bg-gradient-to-br from-slate-900 via-purple-950/30 to-slate-900 min-h-screen font-sans"
       >
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider theme={darkTheme({
-              accentColor: '#8b5cf6',
-              accentColorForeground: 'white',
-              borderRadius: 'medium',
-            })}>
+            <RainbowKitProvider 
+              modalSize="compact"
+              theme={darkTheme({
+                accentColor: '#7c3aed',
+                accentColorForeground: 'white',
+                borderRadius: 'large',
+                fontStack: 'system',
+                overlayBlur: 'small',
+              })}
+            >
               <div className="min-h-screen flex flex-col">
                 <Navbar />
                 <main className="flex-1">
