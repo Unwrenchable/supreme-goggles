@@ -2,36 +2,38 @@
 
 ## QR Code Support for Mobile Wallets
 
-AtomicFizzCaps Universal Naming Service supports seamless mobile wallet connections via QR codes for both Solana and EVM chains.
+AtomicFizzCaps Universal Naming Service supports seamless mobile wallet connections via QR codes for EVM (Ethereum Virtual Machine) chains.
 
 ### Supported Mobile Wallets
 
-#### 🟣 Solana Wallets (For .fizz, .atomic, .sol domains)
+#### 🦊 EVM Wallets (Ethereum, Polygon, BSC, Arbitrum, etc.)
 
-**Primary Solana Wallets:**
-- **Phantom** - Most popular Solana wallet, user-friendly mobile app
-- **Solflare** - Feature-rich Solana wallet with staking support
-- **Backpack** - Modern Solana wallet with xNFT support
-- **Glow** - Solana-focused wallet with governance features
-- **Ultimate** - Multi-chain wallet with strong Solana support
-
-**Solana Wallet Features:**
-- Native SOL and SPL token support
-- Fast, low-cost transactions on Solana
-- Perfect for .fizz and .atomic domain registrations
-- NFT and token management
-- In-app staking and DeFi access
-
-#### 🦊 EVM Wallets (For Ethereum, Polygon, BSC, Arbitrum, etc.)
-
-Connect using WalletConnect-compatible mobile wallets:
+**Primary Mobile Wallets:**
 - **MetaMask Mobile** - Most popular Ethereum wallet
 - **Trust Wallet** - Multi-chain mobile wallet
 - **Rainbow Wallet** - User-friendly Ethereum wallet  
 - **Coinbase Wallet** - Coinbase's self-custody wallet
+- **Phantom** - Supports EVM chains via WalletConnect (Note: Native Solana not yet supported)
 - **Ledger Live** - Hardware wallet companion app
 - **SafePal** - Secure multi-chain wallet
 - **And 300+ other wallets** - Any WalletConnect-enabled app
+
+**EVM Wallet Features:**
+- Support for all configured EVM chains (Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, Avalanche, Fantom)
+- Connect using WalletConnect QR codes
+- Perfect for .eth, .crypto, and other EVM-based domain registrations
+- NFT and token management
+- Multi-chain support in a single wallet
+
+#### 🟣 About Solana Wallet Support
+
+**Current Status:** Native Solana wallet connections (for .sol, .fizz, .atomic domains) are not yet integrated.
+
+**Why?** This app currently uses RainbowKit + Wagmi which are designed for EVM chains only. To add native Solana support, additional wallet adapters (like `@solana/wallet-adapter-react`) would need to be integrated.
+
+**Workaround:** Some wallets like Phantom support both EVM and Solana. You can connect Phantom via WalletConnect for EVM chain interactions, but native Solana features are not available yet.
+
+**Coming Soon:** We plan to add native Solana wallet support in a future update using the official Solana wallet adapter library.
 
 ### How to Connect Your Mobile Wallet
 
@@ -51,17 +53,12 @@ A **QR code will automatically display** in the modal window. This QR code is un
 
 #### Step 4: Scan with Mobile App
 
-**For Solana Wallets (Phantom, Solflare, etc.):**
-1. Open your Solana wallet app on your phone
-2. Tap the scan icon or "Connect" button
-3. Point your phone's camera at the QR code on your computer screen
-4. The app will automatically detect and scan the code
-
-**For EVM Wallets (MetaMask, Trust Wallet, etc.):**
+**For All WalletConnect-Compatible Wallets (MetaMask, Trust Wallet, Phantom, etc.):**
 1. Open your mobile wallet app on your phone
-2. Look for the "WalletConnect" or "Scan" option (usually in settings or top menu)
+2. Look for the "WalletConnect" or "Scan" option (usually in settings, menu, or top toolbar)
 3. Point your phone's camera at the QR code on your computer screen
 4. The app will automatically detect and scan the code
+5. Select which network/chain you want to connect with (if prompted)
 
 #### Step 5: Approve Connection
 1. Your mobile wallet will show a connection request
@@ -69,29 +66,31 @@ A **QR code will automatically display** in the modal window. This QR code is un
 3. Tap "Connect" or "Approve" in your mobile wallet
 4. You're now connected! 🎉
 
-### 🟣 Connecting with Phantom Wallet (Solana)
+### 🟣 Connecting with Phantom Wallet (EVM Chains)
 
-Phantom is the most popular Solana wallet and recommended for .fizz, .atomic, and .sol domain registrations.
+Phantom is a popular multi-chain wallet that supports both Solana and EVM chains. Currently, this platform supports Phantom's **EVM functionality only**.
 
-#### Quick Phantom Connection:
+#### Quick Phantom Connection for EVM Chains:
 1. **Download Phantom** - Get it from App Store (iOS) or Google Play (Android)
-2. **Open Phantom app** - Tap the scan icon in the top right
-3. **Scan QR code** - Point your camera at the QR code on your computer
-4. **Approve connection** - Tap "Connect" when prompted
-5. **Done!** - You're connected and ready to register Solana domains
+2. **Open Phantom app** - Ensure you have the EVM chains enabled in settings
+3. **Click "Connect Wallet"** on the website and select "WalletConnect"
+4. **Scan QR code** - Point your camera at the QR code on your computer
+5. **Select Network** - Choose the EVM network you want to use (Ethereum, Polygon, etc.)
+6. **Approve connection** - Tap "Connect" when prompted
+7. **Done!** - You're connected and ready to register domains on EVM chains
 
-#### Phantom Features:
-- 🚀 Fast Solana transactions
-- 💎 Low fees (fractions of a cent)
-- 🎨 NFT gallery and management
-- 💰 Token swaps built-in
+#### Phantom EVM Features:
+- 🌐 Multi-chain support (Ethereum, Polygon, and other EVM chains)
+- 🔄 Easy network switching within the app
+- 💰 Token and NFT management across chains
 - 🔒 Biometric security (Face ID/Fingerprint)
+- 🎨 Clean, modern interface
 
-#### Why Phantom for .fizz domains?
-- Native Solana support (not bridged)
-- Fastest domain registration experience
-- Cheapest transaction costs
-- Best mobile UX in the Solana ecosystem
+#### Important Notes About Phantom:
+- ✅ **EVM chains supported**: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, Avalanche, Fantom
+- ⚠️ **Native Solana not yet integrated**: While Phantom excels at Solana, this platform doesn't yet support native Solana wallet connections
+- 💡 **Use for EVM domains**: Perfect for registering .eth, .crypto, .nft, .web3, .blockchain domains
+- 🔮 **Future Solana support**: We plan to add native Solana integration in future updates
 
 ### Tips for Best Experience
 
@@ -105,33 +104,33 @@ Phantom is the most popular Solana wallet and recommended for .fizz, .atomic, an
 
 ✅ **Reconnection**: If disconnected, simply repeat the process - your previous domains and settings are preserved
 
-### Other Solana Wallets
+### Alternative EVM-Compatible Mobile Wallets
 
-In addition to Phantom, these Solana wallets also work great with the platform:
+In addition to Phantom and MetaMask, these wallets also work great with the platform via WalletConnect:
 
-#### Solflare
-- Advanced features for Solana power users
-- Built-in staking and DeFi access
-- Hardware wallet support (Ledger)
+#### Trust Wallet
+- Multi-chain support for 10+ blockchains
+- Built-in DApp browser
+- Token swaps and staking
 - Available on iOS and Android
 
-#### Backpack
-- Modern, sleek interface
-- xNFT support (executable NFTs)
-- Multi-wallet management
-- Growing ecosystem support
+#### Rainbow Wallet
+- Beautiful, user-friendly interface
+- Ethereum-focused with L2 support
+- NFT showcase gallery
+- Strong privacy features
 
-#### Glow
-- Focus on Solana governance
-- Vote on proposals directly
-- Clean, minimalist design
-- Strong security features
+#### Coinbase Wallet
+- Direct integration with Coinbase exchange
+- Self-custody with easy recovery
+- DeFi and NFT support
+- Hardware wallet compatible
 
-#### Ultimate
-- Multi-chain support (Solana + EVM)
-- One wallet for all your chains
-- Cross-chain swaps
-- Unified portfolio view
+#### Ledger Live Mobile
+- Companion app for Ledger hardware wallets
+- Maximum security for large holdings
+- Multi-chain support
+- Transaction verification on device
 
 ### Technical Details
 
