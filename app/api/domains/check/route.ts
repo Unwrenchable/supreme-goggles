@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkDomainAvailability } from '@/lib/mockData';
+import { DOMAIN_EXTENSIONS } from '@/lib/contract';
 
 /**
  * Validate domain name format
@@ -30,6 +31,39 @@ function validateDomainName(domain: string): { valid: boolean; error?: string } 
 }
 
 /**
+ * Validate domain extension
+ * - Must be one of the supported extensions or a custom extension starting with '.'
+ */
+function validateExtension(extension: string): { valid: boolean; error?: string; isKnown?: boolean } {
+  if (!extension) {
+    return { valid: false, error: 'Extension is required' };
+  }
+
+  if (!extension.startsWith('.')) {
+    return { valid: false, error: 'Extension must start with a dot (e.g., .fizz)' };
+  }
+
+  // Check if it's a known extension or a custom one
+  const isKnownExtension = DOMAIN_EXTENSIONS.includes(extension as any);
+
+  // For custom extensions, validate format
+  if (!isKnownExtension) {
+    // Custom extensions must be alphanumeric and between 2-63 characters (excluding the dot)
+    const extWithoutDot = extension.slice(1);
+    if (extWithoutDot.length < 2 || extWithoutDot.length > 63) {
+      return { valid: false, error: 'Custom extension must be between 2 and 63 characters' };
+    }
+
+    const extRegex = /^[a-z0-9]+$/i;
+    if (!extRegex.test(extWithoutDot)) {
+      return { valid: false, error: 'Extension can only contain letters and numbers' };
+    }
+  }
+
+  return { valid: true, isKnown: isKnownExtension };
+}
+
+/**
  * API Route: Check Domain Availability
  * 
  * This is an example of a BACKEND API endpoint in Next.js.
@@ -56,10 +90,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate domain name format
-    const validation = validateDomainName(domain);
-    if (!validation.valid) {
+    const domainValidation = validateDomainName(domain);
+    if (!domainValidation.valid) {
       return NextResponse.json(
-        { error: validation.error },
+        { error: domainValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Validate extension format
+    const extensionValidation = validateExtension(extension);
+    if (!extensionValidation.valid) {
+      return NextResponse.json(
+        { error: extensionValidation.error },
         { status: 400 }
       );
     }
@@ -74,6 +117,7 @@ export async function POST(request: NextRequest) {
       available,
       domain: fullDomain,
       checked_at: new Date().toISOString(),
+      is_known_extension: extensionValidation.isKnown,
     });
 
   } catch (error) {
@@ -87,7 +131,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/domains/check?domain=myname&extension=.fizz
- * 
+ *
  * Alternative endpoint using query parameters
  */
 export async function GET(request: NextRequest) {
@@ -104,10 +148,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate domain name format using shared function
-    const validation = validateDomainName(domain);
-    if (!validation.valid) {
+    const domainValidation = validateDomainName(domain);
+    if (!domainValidation.valid) {
       return NextResponse.json(
-        { error: validation.error },
+        { error: domainValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Validate extension format
+    const extensionValidation = validateExtension(extension);
+    if (!extensionValidation.valid) {
+      return NextResponse.json(
+        { error: extensionValidation.error },
         { status: 400 }
       );
     }
@@ -119,6 +172,7 @@ export async function GET(request: NextRequest) {
       available,
       domain: fullDomain,
       checked_at: new Date().toISOString(),
+      is_known_extension: extensionValidation.isKnown,
     });
 
   } catch (error) {
