@@ -19,33 +19,36 @@ export default function DualWalletConnect() {
   const [activeChain, setActiveChain] = useState<'evm' | 'solana'>('solana');
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2 items-center">
-      {/* Chain Toggle */}
-      <div className="hidden sm:flex bg-black/30 rounded-lg p-1 gap-1">
-        <button
-          onClick={() => setActiveChain('solana')}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-            activeChain === 'solana'
-              ? 'bg-purple-600 text-white'
-              : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          Solana
-        </button>
-        <button
-          onClick={() => setActiveChain('evm')}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-            activeChain === 'evm'
-              ? 'bg-purple-600 text-white'
-              : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          EVM
-        </button>
-      </div>
+    <div className="flex items-center gap-2">
+      {/* Desktop: Chain Toggle + Active Wallet Button */}
+      <div className="hidden sm:flex items-center gap-2">
+        {/* Chain Toggle */}
+        <div className="bg-black/30 rounded-lg p-1 flex gap-1">
+          <button
+            onClick={() => setActiveChain('solana')}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              activeChain === 'solana'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+            aria-label="Switch to Solana wallet"
+          >
+            Solana
+          </button>
+          <button
+            onClick={() => setActiveChain('evm')}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              activeChain === 'evm'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+            aria-label="Switch to EVM wallet"
+          >
+            EVM
+          </button>
+        </div>
 
-      {/* Wallet Buttons */}
-      <div className="flex gap-2">
+        {/* Active Wallet Button */}
         {activeChain === 'solana' ? (
           <div className="solana-wallet-button">
             <WalletMultiButton />
@@ -55,12 +58,42 @@ export default function DualWalletConnect() {
         )}
       </div>
 
-      {/* Mobile: Show both buttons stacked */}
-      <div className="sm:hidden flex flex-col gap-2 w-full">
-        <div className="solana-wallet-button">
-          <WalletMultiButton />
+      {/* Mobile: Tabbed Interface */}
+      <div className="sm:hidden w-full">
+        {/* Mobile Tabs */}
+        <div className="flex bg-black/30 rounded-lg p-1 mb-2">
+          <button
+            onClick={() => setActiveChain('solana')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+              activeChain === 'solana'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-400'
+            }`}
+          >
+            Solana
+          </button>
+          <button
+            onClick={() => setActiveChain('evm')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+              activeChain === 'evm'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-400'
+            }`}
+          >
+            EVM
+          </button>
         </div>
-        <ConnectButton />
+
+        {/* Mobile Wallet Button */}
+        {activeChain === 'solana' ? (
+          <div className="solana-wallet-button w-full">
+            <WalletMultiButton />
+          </div>
+        ) : (
+          <div className="w-full">
+            <ConnectButton />
+          </div>
+        )}
       </div>
     </div>
   );
