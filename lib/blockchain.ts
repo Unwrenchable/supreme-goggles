@@ -293,18 +293,30 @@ export const getChainIdForChain = (chainName: string): number => {
 /**
  * Format a transaction error message for users
  */
-export const formatTransactionError = (error: any): string => {
-  if (error.code === 'ACTION_REJECTED') {
-    return 'Transaction was rejected by user';
+export const formatTransactionError = (error: unknown): string => {
+  // Type guard for error with code property
+  if (error && typeof error === 'object' && 'code' in error) {
+    const errorWithCode = error as { code: string; message?: string };
+    
+    if (errorWithCode.code === 'ACTION_REJECTED') {
+      return 'Transaction was rejected by user';
+    }
+    
+    if (errorWithCode.code === 'INSUFFICIENT_FUNDS') {
+      return 'Insufficient funds to complete transaction';
+    }
   }
   
-  if (error.code === 'INSUFFICIENT_FUNDS') {
-    return 'Insufficient funds to complete transaction';
+  // Type guard for error with message property
+  if (error && typeof error === 'object' && 'message' in error) {
+    const errorWithMessage = error as { message: string };
+    
+    if (errorWithMessage.message?.includes('user rejected')) {
+      return 'Transaction was rejected by user';
+    }
+    
+    return errorWithMessage.message || 'Transaction failed. Please try again.';
   }
   
-  if (error.message?.includes('user rejected')) {
-    return 'Transaction was rejected by user';
-  }
-  
-  return error.message || 'Transaction failed. Please try again.';
+  return 'Transaction failed. Please try again.';
 };

@@ -39,10 +39,10 @@ Deploy your smart contracts and add their addresses:
 
 ```env
 # Example for Ethereum
-NEXT_PUBLIC_ETHEREUM_CONTRACT_ADDRESS=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+NEXT_PUBLIC_ETHEREUM_CONTRACT_ADDRESS=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0
 
 # Example for Polygon
-NEXT_PUBLIC_POLYGON_CONTRACT_ADDRESS=0x...your_polygon_contract_address
+NEXT_PUBLIC_POLYGON_CONTRACT_ADDRESS=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0
 
 # Add more chains as needed
 ```

@@ -111,7 +111,9 @@ export default function ManageDomainPage() {
     try {
       // Production mode: Save records to blockchain
       if (USE_PRODUCTION_MODE && walletClient) {
-        const provider = new BrowserProvider(walletClient);
+        // Convert walletClient to ethers provider
+        // Note: wagmi's walletClient is compatible with EIP-1193 provider interface
+        const provider = new BrowserProvider(walletClient as any);
         const signer = await provider.getSigner();
         
         // Update each record on-chain

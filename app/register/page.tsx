@@ -51,8 +51,9 @@ function RegisterForm() {
     try {
       // Production mode: Real blockchain transaction
       if (isProductionMode && walletClient) {
-        // Convert walletClient to ethers signer
-        const provider = new BrowserProvider(walletClient);
+        // Convert walletClient to ethers provider
+        // Note: wagmi's walletClient is compatible with EIP-1193 provider interface
+        const provider = new BrowserProvider(walletClient as any);
         const signer = await provider.getSigner();
         
         // Convert price to BigInt (wei/smallest unit)

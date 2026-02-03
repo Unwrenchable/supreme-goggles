@@ -106,7 +106,8 @@ export const isProductionConfigured = (extension: string): boolean => {
   }
   
   // For EVM chains, check contract and payment recipient
-  return !!(contractAddress && PAYMENT_RECIPIENT_ADDRESS !== '0x0000000000000000000000000000000000000000');
+  // Check for empty string, undefined, or the zero address
+  return !!(contractAddress && PAYMENT_RECIPIENT_ADDRESS && PAYMENT_RECIPIENT_ADDRESS !== '0x0000000000000000000000000000000000000000');
 };
 
 export const getDomainRegistryContract = (signerOrProvider: ethers.Provider | ethers.Signer, extension: string = '.eth') => {
