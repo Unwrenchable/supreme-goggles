@@ -3,6 +3,24 @@ import DomainRegistryABI from '@/contracts/DomainRegistry.json';
 
 export const DOMAIN_REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000';
 
+// IMPORTANT: Payment Collection Configuration
+// This is where YOU receive payments when users register domains
+// In production, this should be YOUR wallet address or a multi-sig treasury
+export const PAYMENT_RECIPIENT_ADDRESS = process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS || '0x0000000000000000000000000000000000000000';
+
+// For Solana-based domains (.fizz, .atomic, .sol)
+export const SOLANA_PAYMENT_ADDRESS = process.env.NEXT_PUBLIC_SOLANA_PAYMENT_ADDRESS || '';
+
+/**
+ * PAYMENT FLOW:
+ * 1. User pays in native currency (SOL, ETH, BNB, etc.)
+ * 2. Smart contract receives payment
+ * 3. Smart contract immediately transfers to PAYMENT_RECIPIENT_ADDRESS
+ * 4. Domain is registered to user
+ * 
+ * See PAYMENTS.md for complete payment setup guide
+ */
+
 export const getDomainRegistryContract = (signerOrProvider: ethers.Provider | ethers.Signer) => {
   return new ethers.Contract(
     DOMAIN_REGISTRY_ADDRESS,

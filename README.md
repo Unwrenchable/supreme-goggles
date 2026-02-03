@@ -209,12 +209,16 @@ AtomicFizzCaps Universal Naming Service is built for the future:
 
 ## 🧪 Demo Mode
 
-The app currently runs with mock data for demonstration. To connect to a real smart contract:
+The app currently runs with mock data for demonstration. To connect to a real smart contract and accept real payments:
 
-1. Deploy the Domain Registry contract to your chosen network
-2. Update `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env.local`
-3. Update chain configuration in `lib/wagmi.ts`
-4. Remove mock data from components
+1. **Deploy the Domain Registry contract** to your chosen network(s)
+2. **Configure payment collection** - See [PAYMENTS.md](./PAYMENTS.md) for complete guide
+3. Update `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env.local`
+4. Update `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` with your wallet address
+5. Update chain configuration in `lib/wagmi.ts`
+6. Integrate real blockchain transactions (replace mock alerts)
+
+**💰 Important**: See [PAYMENTS.md](./PAYMENTS.md) for a complete guide on how to receive payments from domain registrations.
 
 ## 📝 Environment Variables
 
@@ -224,7 +228,10 @@ Copy `.env.example` to `.env.local` and configure the following:
 |----------|-------------|----------|---------|
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect Cloud Project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com/) | Yes | - |
 | `NEXT_PUBLIC_CONTRACT_ADDRESS` | Domain Registry contract address | No | Uses mock data |
+| `NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS` | **YOUR wallet address** where payments are sent | No | - |
 | `NEXT_PUBLIC_NETWORK` | Blockchain network to connect to | No | mainnet |
+
+**Payment Setup**: See [PAYMENTS.md](./PAYMENTS.md) for detailed payment collection configuration.
 
 ## 🚢 Deployment
 
