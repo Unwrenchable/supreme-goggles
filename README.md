@@ -14,6 +14,7 @@ The **truly unlimited Web3 naming hub** - register ANY extension you want! Choos
 
 | Guide | Description |
 |-------|-------------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | **Full-stack architecture guide** - Frontend, Backend & Blockchain explained |
 | [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
 | [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
 | [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **How to add new blockchains** (15-minute guide) |
@@ -144,27 +145,44 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🏗️ Project Structure
 
+This is a **full-stack Web3 application** with both frontend and backend components. See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture guide.
+
 \`\`\`
 supreme-goggles/
-├── app/                      # Next.js 14 App Router
+├── app/                      # Next.js 14 App Router (Frontend Pages)
 │   ├── layout.tsx           # Root layout with Web3 providers
 │   ├── page.tsx             # Landing page
 │   ├── search/              # Domain search results
 │   ├── register/            # Domain registration
 │   ├── dashboard/           # User dashboard
-│   └── manage/[domain]/     # Domain management
-├── components/              # Reusable React components
+│   ├── manage/[domain]/     # Domain management
+│   └── api/                 # Backend API Routes (Server-Side)
+│       ├── domains/         # Domain-related endpoints
+│       └── health/          # Health check endpoint
+├── components/              # Reusable React components (Frontend)
 │   ├── Navbar.tsx          # Navigation with wallet connect
 │   ├── DomainSearch.tsx    # Search bar component
 │   ├── DomainCard.tsx      # Domain display card
 │   └── Footer.tsx          # Footer component
-├── lib/                     # Utilities and configs
+├── lib/                     # Backend utilities and configs
 │   ├── wagmi.ts            # Wagmi/RainbowKit config
 │   ├── contract.ts         # Contract utilities
+│   ├── blockchain.ts       # Blockchain transaction functions
 │   └── mockData.ts         # Mock data for demo
-└── contracts/               # Smart contract ABIs
-    └── DomainRegistry.json # Domain registry ABI
+└── contracts/               # Smart contract ABIs (Blockchain Layer)
+    ├── DomainRegistry.json # Domain registry ABI
+    └── DomainRegistryExample.sol # Solidity source code
 \`\`\`
+
+### Architecture Overview
+
+**Three-Tier Full-Stack Architecture:**
+
+1. **Frontend (Client-Side)**: React components, pages, and UI in `/app` and `/components`
+2. **Backend (Server-Side)**: Next.js API routes in `/app/api` and utilities in `/lib`
+3. **Blockchain (Decentralized)**: Smart contracts in `/contracts` deployed on multiple blockchains
+
+📖 **Read [ARCHITECTURE.md](./ARCHITECTURE.md) for complete details on the frontend/backend architecture.**
 
 ## 🎨 Tech Stack
 
