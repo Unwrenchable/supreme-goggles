@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkDomainAvailability } from '@/lib/mockData';
 
 /**
+ * Validate domain name format
+ * - Must start and end with alphanumeric characters
+ * - Can contain hyphens in the middle
+ * - Minimum 1 character, maximum 63 characters
+ */
+function validateDomainName(domain: string): { valid: boolean; error?: string } {
+  if (!domain || domain.length === 0) {
+    return { valid: false, error: 'Domain name is required' };
+  }
+
+  if (domain.length > 63) {
+    return { valid: false, error: 'Domain name must be 63 characters or less' };
+  }
+
+  // Domain must start and end with alphanumeric, can have hyphens in middle
+  // Supports single character domains
+  const domainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i;
+  if (!domainRegex.test(domain)) {
+    return {
+      valid: false,
+      error: 'Invalid domain name. Must start and end with a letter or number, and can contain hyphens in the middle.'
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
  * API Route: Check Domain Availability
  * 
  * This is an example of a BACKEND API endpoint in Next.js.
@@ -28,10 +56,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate domain name format
-    const domainRegex = /^[a-z0-9-]+$/i;
-    if (!domainRegex.test(domain)) {
+    const validation = validateDomainName(domain);
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: 'Invalid domain name. Only letters, numbers, and hyphens are allowed.' },
+        { error: validation.error },
         { status: 400 }
       );
     }
@@ -71,6 +99,15 @@ export async function GET(request: NextRequest) {
     if (!domain || !extension) {
       return NextResponse.json(
         { error: 'Domain and extension are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate domain name format using shared function
+    const validation = validateDomainName(domain);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error },
         { status: 400 }
       );
     }
