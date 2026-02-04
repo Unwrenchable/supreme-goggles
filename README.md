@@ -11,11 +11,13 @@ A **Web3 naming platform** supporting **Solana and EVM chains** - Register ANY d
 ![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3+-38B2AC?style=flat-square&logo=tailwind-css)
+[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/Unwrenchable/supreme-goggles)
 
 ## 📚 Documentation Quick Links
 
 | Guide | Description |
 |-------|-------------|
+| [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) | **☁️ Vercel Deployment Guide** - Complete setup for production deployment on Vercel |
 | [QUICKSTART_CONTRACTS.md](./QUICKSTART_CONTRACTS.md) | **⚡ 60-Second Contract Deployment** - Get started immediately! |
 | [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | **🚀 Complete Deployment Guide** - Step-by-step EVM & Solana deployment |
 | [contracts/README.md](./contracts/README.md) | **📝 Smart Contract Documentation** - Contract features and API |
@@ -73,6 +75,38 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 🚀 Deploy to Production
+
+### Deploy to Vercel (Recommended)
+
+This project is optimized for Vercel deployment with a complete configuration:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Unwrenchable/supreme-goggles)
+
+**What's Included:**
+- ✅ `vercel.json` - Full Vercel configuration with optimal settings
+- ✅ `next.config.ts` - Production-ready Next.js config with Turbopack
+- ✅ `.vercelignore` - Excludes unnecessary files from deployment
+- ✅ Standalone output for optimized serverless deployment
+
+**Quick Deploy Steps:**
+1. Click the "Deploy with Vercel" button above
+2. Connect your GitHub account
+3. Add environment variable: `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
+4. Click "Deploy"
+
+**📖 Complete Vercel Setup Guide:** See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for:
+- Detailed configuration instructions
+- Environment variables setup
+- Custom domain configuration
+- Production deployment checklist
+- Troubleshooting guide
+
+### Other Deployment Options
+- **Netlify:** `npm run build && netlify deploy`
+- **Railway/Render:** Connect GitHub repo for auto-deploy
+- **Self-hosted:** `npm run build && npm start`
 
 ## 🎯 What Makes This Different?
 
