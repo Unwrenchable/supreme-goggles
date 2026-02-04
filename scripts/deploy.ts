@@ -70,11 +70,11 @@ async function main() {
 
   // Generate environment variable configuration
   console.log("📝 Add this to your .env.local file:");
-  console.log("=" .repeat(80));
+  console.log("=".repeat(80));
   
   const networkName = network.name.toUpperCase().replace("-", "_");
   console.log(`NEXT_PUBLIC_${networkName}_CONTRACT_ADDRESS=${contractAddress}`);
-  console.log("=" .repeat(80));
+  console.log("=".repeat(80));
   console.log("");
 
   // Verification instructions

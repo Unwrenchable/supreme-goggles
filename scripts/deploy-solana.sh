@@ -98,7 +98,7 @@ cat > $DEPLOY_INFO << EOF
   "programId": "$PROGRAM_ID",
   "treasury": "$TREASURY_ADDRESS",
   "registrationFee": "$REGISTRATION_FEE",
-  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "timestamp": "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)",
   "cluster": "$NETWORK"
 }
 EOF
