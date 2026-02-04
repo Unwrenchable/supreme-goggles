@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { 
-  PhantomWalletAdapter,
   SolflareWalletAdapter,
   TorusWalletAdapter,
   LedgerWalletAdapter,
@@ -13,13 +12,16 @@ import { clusterApiUrl } from '@solana/web3.js';
  * 
  * This configuration sets up the Solana wallet adapters for the application.
  * It provides support for popular Solana wallets including:
- * - Phantom - Most popular Solana wallet
+ * - Phantom - Auto-detected via Wallet Standard (no explicit adapter needed)
  * - Solflare - Feature-rich Solana wallet
  * - Torus - Social login wallet
  * - Ledger - Hardware wallet support
  * 
+ * Note: Phantom wallet now uses the Wallet Standard API and is automatically
+ * detected. The explicit PhantomWalletAdapter has been removed to avoid warnings.
+ * 
  * Mobile Support:
- * - Phantom Mobile via WalletConnect
+ * - Phantom Mobile via WalletConnect and deep links
  * - Solflare Mobile via WalletConnect
  * - Other WalletConnect-enabled Solana wallets
  */
@@ -59,14 +61,16 @@ export const getSolanaEndpoint = (): string => {
 /**
  * Hook to get configured Solana wallet adapters
  * This should be used within the WalletProvider context
+ * 
+ * Note: Phantom wallet is not explicitly included as it's now auto-detected
+ * via the Wallet Standard API. This prevents duplicate registration warnings.
  */
 export const useSolanaWallets = () => {
   const network = getSolanaNetwork();
   
   const wallets = useMemo(
     () => [
-      // Phantom - Most popular Solana wallet with mobile support
-      new PhantomWalletAdapter(),
+      // Phantom is auto-detected via Wallet Standard - no explicit adapter needed
       
       // Solflare - Feature-rich Solana wallet
       new SolflareWalletAdapter({ network }),

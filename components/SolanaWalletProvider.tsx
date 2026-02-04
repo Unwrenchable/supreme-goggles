@@ -17,11 +17,15 @@ interface SolanaWalletProviderProps {
  * 
  * Wraps the application with Solana wallet connectivity
  * Provides support for:
- * - Phantom wallet (desktop & mobile)
+ * - Phantom wallet (auto-detected via Wallet Standard - desktop & mobile)
  * - Solflare wallet (desktop & mobile)
  * - Torus wallet (social login)
  * - Ledger hardware wallet
  * - WalletConnect for mobile wallets
+ * 
+ * Note: Phantom is now auto-detected through the Wallet Standard API,
+ * so we don't need to explicitly include the PhantomWalletAdapter.
+ * This prevents duplicate registration warnings in the console.
  * 
  * Mobile Usage:
  * 1. Click the wallet button

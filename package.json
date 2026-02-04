@@ -6,7 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check-deployment": "node scripts/check-deployment.js",
+    "compile:contracts": "node scripts/compile.js",
+    "deploy:polygon": "npx hardhat run scripts/deploy.ts --network polygon",
+    "deploy:bsc": "npx hardhat run scripts/deploy.ts --network bsc",
+    "deploy:arbitrum": "npx hardhat run scripts/deploy.ts --network arbitrum",
+    "deploy:optimism": "npx hardhat run scripts/deploy.ts --network optimism",
+    "deploy:base": "npx hardhat run scripts/deploy.ts --network base",
+    "deploy:avalanche": "npx hardhat run scripts/deploy.ts --network avalanche",
+    "deploy:sepolia": "npx hardhat run scripts/deploy.ts --network sepolia",
+    "deploy:mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
+    "deploy:bsc-testnet": "npx hardhat run scripts/deploy.ts --network bscTestnet"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.10",
@@ -24,12 +35,16 @@
     "wagmi": "^2.19.5"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "hardhat": "^3.1.6",
+    "solc": "^0.8.20",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
