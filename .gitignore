@@ -40,3 +40,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Hardhat files
+cache/
+artifacts/
+deployments/*.json
+!deployments/.gitkeep
+
+# Solana/Anchor files
+target/
+**/*.rs.bk
+.anchor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
