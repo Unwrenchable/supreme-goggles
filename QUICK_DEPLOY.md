@@ -90,7 +90,7 @@ Expected response:
 
 ### Q: I see "indexedDB is not defined" during build
 
-**A**: This is expected and harmless. The build still succeeds. See [DEPLOYMENT_TROUBLESHOOTING.md](./DEPLOYMENT_TROUBLESHOOTING.md) for details.
+**A**: This is expected and harmless. The build still succeeds. See [CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md) for details.
 
 ### Q: Where do I get a WalletConnect Project ID?
 
