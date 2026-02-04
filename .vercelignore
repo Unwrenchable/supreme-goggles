@@ -1,0 +1,71 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Build artifacts
+.next
+out
+dist
+build
+.cache
+
+# Development files
+.env
+.env.local
+.env.*.local
+*.log
+
+# Hardhat & Smart Contract Development
+cache
+artifacts
+typechain
+typechain-types
+deployments/*.json
+!deployments/README.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Git
+.git
+.gitignore
+
+# Documentation (deploy selectively)
+*.md
+!README.md
+!VERCEL_DEPLOYMENT.md
+!VERCEL_PROJECT_SETTINGS.md
+
+# Scripts that shouldn't be deployed
+scripts/deploy*.ts
+scripts/compile.js
+scripts/check-deployment.js
+
+# Hardhat config
+hardhat.config.ts
+
+# Private keys and sensitive data
+.env
+.secret
+*.key
+*.pem
