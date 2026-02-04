@@ -17,17 +17,22 @@ A **Web3 naming platform** supporting **Solana and EVM chains** - Register ANY d
 
 | Guide | Description |
 |-------|-------------|
-| [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) | **☁️ Vercel Deployment Guide** - Complete setup for production deployment on Vercel |
-| [QUICKSTART_CONTRACTS.md](./QUICKSTART_CONTRACTS.md) | **⚡ 60-Second Contract Deployment** - Get started immediately! |
-| [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | **🚀 Complete Deployment Guide** - Step-by-step EVM & Solana deployment |
-| [contracts/README.md](./contracts/README.md) | **📝 Smart Contract Documentation** - Contract features and API |
-| [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) | **Quick Reference** - "Do I have frontend AND backend?" - YES! |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | **Full-stack architecture guide** - Frontend, Backend & Blockchain explained |
-| [DEPLOYMENT_LOGS.md](./DEPLOYMENT_LOGS.md) | **Monitoring & Logs** - How to check deployment health and troubleshoot issues |
-| [CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md) | **Console Warnings** - Explanation and fixes for wallet-related console messages |
+| **🚀 DEPLOYMENT** | |
+| [QUICK_DEPLOY.md](./QUICK_DEPLOY.md) | **⚡ 5-Minute Vercel Deployment** - Fastest way to deploy! |
+| [DEPLOYMENT_TROUBLESHOOTING.md](./DEPLOYMENT_TROUBLESHOOTING.md) | **🔧 Deployment Troubleshooting** - Fixes for common deployment issues |
+| [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) | **☁️ Vercel Deployment Guide** - Complete setup for production deployment |
+| [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | **📝 Contract Deployment** - Deploy smart contracts to blockchains |
+| [DEPLOYMENT_LOGS.md](./DEPLOYMENT_LOGS.md) | **📊 Monitoring & Logs** - Health checks and troubleshooting |
+| **📖 GUIDES** | |
+| [QUICKSTART_CONTRACTS.md](./QUICKSTART_CONTRACTS.md) | **⚡ 60-Second Contract Setup** - Get started immediately! |
+| [contracts/README.md](./contracts/README.md) | **📝 Smart Contract Docs** - Contract features and API |
+| [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) | **🏗️ Architecture Overview** - Frontend, backend, and blockchain explained |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | **🔬 Full Architecture** - Deep dive into system design |
+| [CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md) | **⚠️ Console Warnings** - Explanation of wallet-related messages |
+| **⚙️ CONFIGURATION** | |
 | [QUICKSTART.md](./QUICKSTART.md) | 5-minute deployment guide |
-| [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **Cost estimates for each blockchain** (Polygon: $0.05, BSC: $1, etc.) |
-| [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **How to add new blockchains** (15-minute guide) |
+| [DEPLOYMENT_COSTS.md](./DEPLOYMENT_COSTS.md) | **💰 Cost Estimates** - Polygon: $0.05, BSC: $1, etc. |
+| [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md) | **⛓️ Add New Blockchains** - 15-minute setup guide |
 | [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) | Production deployment guide |
 | [PAYMENTS.md](./PAYMENTS.md) | Payment collection setup |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Platform deployment options |
