@@ -145,7 +145,7 @@ For this Web3 application:
 
 #### Ignored Build Step
 - **Behavior**: Automatic (recommended)
-- Or use custom: `git diff HEAD^ HEAD --quiet . ':(exclude).md'` to skip builds when only docs change
+- Or use custom: `git diff HEAD^ HEAD --quiet . ':(exclude)*.md'` to skip builds when only docs change
 
 ### Performance Optimizations
 
@@ -195,11 +195,13 @@ The `vercel.json` includes CORS headers for API routes:
 }
 ```
 
-Modify the CORS origin in production for better security:
+⚠️ **Security Note**: The default CORS configuration allows requests from any origin (`*`). For production deployments, you should restrict this to your specific domain(s):
 
 ```json
 {"key": "Access-Control-Allow-Origin", "value": "https://yourdomain.com"}
 ```
+
+Or for multiple domains, implement origin validation in your API routes themselves.
 
 ### Deployment Protection
 

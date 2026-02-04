@@ -28,6 +28,13 @@ const nextConfig: NextConfig = {
     };
     
     // Externalize node modules that cause issues in browser
+    // Ensure externals is an array before pushing
+    if (!config.externals) {
+      config.externals = [];
+    }
+    if (!Array.isArray(config.externals)) {
+      config.externals = [config.externals];
+    }
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     
     return config;

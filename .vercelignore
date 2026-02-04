@@ -53,6 +53,8 @@ temp
 # Documentation (deploy selectively)
 *.md
 !README.md
+!VERCEL_DEPLOYMENT.md
+!VERCEL_PROJECT_SETTINGS.md
 
 # Scripts that shouldn't be deployed
 scripts/deploy*.ts
