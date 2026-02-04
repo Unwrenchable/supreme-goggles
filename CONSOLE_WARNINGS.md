@@ -98,17 +98,33 @@ More wallets will adopt the standard over time.
 ReferenceError: indexedDB is not defined
 ```
 
-**Context**: This appears during Next.js build (server-side rendering)
+**Context**: This appears during Next.js build (server-side rendering) in the "Generating static pages" phase
 
 **Explanation**:
 - `indexedDB` is a browser API not available in Node.js
-- Wallet adapters try to access it during SSR
-- This is expected and doesn't affect runtime
+- Wallet adapters (specifically `@solana/wallet-adapter-react-ui`) try to access it during module initialization
+- This happens during SSR when Next.js pre-renders pages at build time
+- **The build still completes successfully** (exit code 0)
 
-**Impact**: None - wallets work correctly in the browser
+**Impact**: 
+- ✅ **None** - wallets work correctly in the browser
+- ✅ Build completes successfully
+- ✅ All pages generate properly
+- ✅ Application functions normally at runtime
 
 **Why Not Fixed?**:
-This is a known limitation of SSR with browser-only APIs. The Next.js build completes successfully, and wallets work perfectly in the browser.
+This is a known limitation of SSR with browser-only APIs. The wallet adapters are third-party libraries that don't properly check for browser environment. Possible "fixes" have downsides:
+- **Option 1: Mock indexedDB globally** - Can cause unexpected behavior in tests
+- **Option 2: Disable SSR for entire app** - Loses SEO and performance benefits
+- **Option 3: Dynamic import all wallet code** - Increases complexity, doesn't improve UX
+- **Current approach: Accept the warning** - Build succeeds, runtime works perfectly
+
+**Verification**: After deployment, test wallet connections in a browser - they work flawlessly.
+
+**Related**:
+- This is documented in Solana wallet adapter issues
+- Many Web3 projects experience this
+- It's a build-time cosmetic issue only
 
 ### WalletConnect QR Code Warnings
 

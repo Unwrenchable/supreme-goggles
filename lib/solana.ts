@@ -1,11 +1,7 @@
 import { useMemo } from 'react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { 
-  SolflareWalletAdapter,
-  TorusWalletAdapter,
-  LedgerWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
+import type { Adapter } from '@solana/wallet-adapter-base';
 
 /**
  * Solana Wallet Configuration
@@ -64,23 +60,48 @@ export const getSolanaEndpoint = (): string => {
  * 
  * Note: Phantom wallet is not explicitly included as it's now auto-detected
  * via the Wallet Standard API. This prevents duplicate registration warnings.
+ * 
+ * Wallet adapters are loaded dynamically to avoid SSR issues with indexedDB
  */
-export const useSolanaWallets = () => {
+export const useSolanaWallets = (): Adapter[] => {
   const network = getSolanaNetwork();
   
   const wallets = useMemo(
-    () => [
-      // Phantom is auto-detected via Wallet Standard - no explicit adapter needed
+    () => {
+      // Only initialize wallets on the client side to avoid SSR issues
+      if (typeof window === 'undefined') {
+        return [];
+      }
       
-      // Solflare - Feature-rich Solana wallet
-      new SolflareWalletAdapter({ network }),
+      // Dynamically import wallet adapters to prevent SSR errors
+      const adapters: Adapter[] = [];
       
-      // Torus - Social login wallet
-      new TorusWalletAdapter(),
+      try {
+        // Lazy load Solflare adapter
+        const { SolflareWalletAdapter } = require('@solana/wallet-adapter-wallets');
+        adapters.push(new SolflareWalletAdapter({ network }));
+      } catch (e) {
+        console.warn('Failed to load SolflareWalletAdapter:', e);
+      }
       
-      // Ledger - Hardware wallet support
-      new LedgerWalletAdapter(),
-    ],
+      try {
+        // Lazy load Torus adapter
+        const { TorusWalletAdapter } = require('@solana/wallet-adapter-wallets');
+        adapters.push(new TorusWalletAdapter());
+      } catch (e) {
+        console.warn('Failed to load TorusWalletAdapter:', e);
+      }
+      
+      try {
+        // Lazy load Ledger adapter
+        const { LedgerWalletAdapter } = require('@solana/wallet-adapter-wallets');
+        adapters.push(new LedgerWalletAdapter());
+      } catch (e) {
+        console.warn('Failed to load LedgerWalletAdapter:', e);
+      }
+      
+      return adapters;
+    },
     [network]
   );
   

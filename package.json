@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "check-deployment": "node scripts/check-deployment.js",
+    "verify-deployment": "node scripts/verify-deployment-ready.js",
     "compile:contracts": "node scripts/compile.js",
     "deploy:polygon": "npx hardhat run scripts/deploy.ts --network polygon",
     "deploy:bsc": "npx hardhat run scripts/deploy.ts --network bsc",
