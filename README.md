@@ -16,6 +16,9 @@ A **Web3 naming platform** supporting **Solana and EVM chains** - Register ANY d
 
 | Guide | Description |
 |-------|-------------|
+| [QUICKSTART_CONTRACTS.md](./QUICKSTART_CONTRACTS.md) | **⚡ 60-Second Contract Deployment** - Get started immediately! |
+| [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | **🚀 Complete Deployment Guide** - Step-by-step EVM & Solana deployment |
+| [contracts/README.md](./contracts/README.md) | **📝 Smart Contract Documentation** - Contract features and API |
 | [FRONTEND_BACKEND_GUIDE.md](./FRONTEND_BACKEND_GUIDE.md) | **Quick Reference** - "Do I have frontend AND backend?" - YES! |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | **Full-stack architecture guide** - Frontend, Backend & Blockchain explained |
 | [DEPLOYMENT_LOGS.md](./DEPLOYMENT_LOGS.md) | **Monitoring & Logs** - How to check deployment health and troubleshoot issues |
@@ -239,23 +242,48 @@ After deployment, configure environment variables in your platform's dashboard:
 2. Add Solana and EVM contract addresses (for production)
 3. Redeploy
 
-## 💰 Smart Contracts
+## 💰 Smart Contracts - Production Ready!
 
-This is **YOUR naming service platform**. You need to:
+This platform includes **production-ready smart contracts** for both EVM chains and Solana!
 
-1. **Deploy DomainRegistry contracts** on each blockchain
-2. **Configure contract addresses** in `.env.local`
-3. **Set payment recipient** to your wallet address
-4. **Collect payments** when users register domains
+### ⚡ Quick Deploy
 
-### Deployment Costs (Estimates)
-- Polygon: ~$0.05
-- BSC: ~$1
-- Avalanche: ~$2
-- Ethereum: ~$50-100 (use L2s instead)
-- Solana: ~0.05 SOL
+```bash
+# 1. Set your payment wallet
+export TREASURY_ADDRESS="0xYourWallet"
 
-See `contracts/DomainRegistryExample.sol` for reference contract.
+# 2. Compile contracts
+npm run compile:contracts
+
+# 3. Deploy to Polygon (cheapest, ~$0.05)
+npm run deploy:polygon
+
+# 4. Or deploy to Solana
+./scripts/deploy-solana.sh mainnet-beta YourWallet 100000
+```
+
+### 📋 What's Included
+
+✅ **EVM Contract** - Solidity contract for Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, Avalanche, Fantom
+✅ **Solana Program** - Rust program with custom treasury support  
+✅ **Deployment Scripts** - One command deployment to any chain
+✅ **Complete Documentation** - [QUICKSTART_CONTRACTS.md](./QUICKSTART_CONTRACTS.md)
+✅ **Cost Optimized** - Deploy to Polygon for only ~$0.05!
+
+### 🚀 Features
+
+- **Lifetime Ownership** - Pay once, own forever (no renewal fees)
+- **Custom Extensions** - Support ANY domain extension
+- **Domain Records** - Wallet addresses, IPFS, social links
+- **Custom Treasury** - **Payments go directly to YOUR wallet**
+- **Multi-Chain** - Same contract on all EVM chains + Solana
+- **Admin Controls** - Pause, update fees, change treasury
+
+### 📚 Full Documentation
+
+See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for complete deployment instructions.
+
+---
 
 ## 📱 Mobile Wallet Guide
 
