@@ -165,7 +165,13 @@ export const getRegistryPDA = async (programId: any): Promise<[any, number]> => 
     pk
   );
 };
-any;
+
+/**
+ * Check if the Solana registry is initialized
+ */
+export const checkRegistryInitialized = async (): Promise<{
+  initialized: boolean;
+  registryPDA?: any;
   error?: string;
 }> => {
   // Only run on client side
@@ -184,13 +190,7 @@ any;
     const programId = new PublicKey(contractAddress);
     const connection = new Connection(getSolanaEndpoint(), 'confirmed');
     
-    const [registryPDA] = await getRegistryPDA(contractAddresst address not configured' };
-    }
-
-    const programId = new PublicKey(contractAddress);
-    const connection = new Connection(getSolanaEndpoint(), 'confirmed');
-    
-    const [registryPDA] = getRegistryPDA(programId);
+    const [registryPDA] = await getRegistryPDA(contractAddress);
     
     // Check if the registry account exists
     const accountInfo = await connection.getAccountInfo(registryPDA);
@@ -215,7 +215,20 @@ any;
     };
   }
 };
-// Only run on client side
+
+/**
+ * Initialize the Solana registry (requires authority wallet)
+ */
+export const initializeSolanaRegistry = async (
+  wallet: any,
+  treasuryAddress?: string,
+  registrationFee: number = 0
+): Promise<{
+  success: boolean;
+  signature?: string;
+  error?: string;
+}> => {
+  // Only run on client side
   if (typeof window === 'undefined') {
     return { success: false, error: 'Must be called on client side' };
   }
@@ -241,20 +254,7 @@ any;
       ? new PublicKey(treasuryAddress)
       : wallet.publicKey;
 
-    const [registryPDA] = await getRegistryPDA(contractAddressC_SOLANA_CONTRACT_ADDRESS;
-    if (!contractAddress) {
-      return { success: false, error: 'Contract address not configured' };
-    }
-
-    const programId = new PublicKey(contractAddress);
-    const connection = new Connection(getSolanaEndpoint(), 'confirmed');
-    
-    // Use provided treasury or default to wallet's public key
-    const treasury = treasuryAddress 
-      ? new PublicKey(treasuryAddress)
-      : wallet.publicKey;
-
-    const [registryPDA] = getRegistryPDA(programId);
+    const [registryPDA] = await getRegistryPDA(contractAddress);
 
     // Build the initialize transaction
     const program = new Program(
