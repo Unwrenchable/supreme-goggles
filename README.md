@@ -68,10 +68,14 @@ npm run deploy:polygon
 
 **Solana:**
 ```bash
+# If you downloaded as ZIP, first make scripts executable:
+bash scripts/setup-scripts.sh
+
 # Build and deploy to Solana devnet
 ./scripts/build-solana.sh --deploy devnet --treasury YOUR_WALLET_ADDRESS
 
-# See SOLANA_BUILD_GUIDE.md for detailed instructions
+# If you get "No such file or directory", see SOLANA_DEPLOYMENT_TROUBLESHOOTING.md
+# For detailed build instructions, see SOLANA_BUILD_GUIDE.md
 ```
 
 See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for full instructions on all chains.
@@ -83,6 +87,7 @@ See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for full instructions on all ch
 | **[QUICK_DEPLOY.md](./QUICK_DEPLOY.md)** | 5-minute Vercel deployment guide |
 | **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** | Deploy smart contracts to blockchains |
 | **[SOLANA_BUILD_GUIDE.md](./SOLANA_BUILD_GUIDE.md)** | **Build & deploy Solana programs (fixes common errors)** |
+| **[SOLANA_DEPLOYMENT_TROUBLESHOOTING.md](./SOLANA_DEPLOYMENT_TROUBLESHOOTING.md)** | **Troubleshoot Solana deployment issues** |
 | **[SOLANA_QUICK_REFERENCE.md](./SOLANA_QUICK_REFERENCE.md)** | **Quick reference for Solana build commands** |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Technical architecture and design |
 | **[MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md)** | Mobile wallet connection (Phantom, MetaMask) |
