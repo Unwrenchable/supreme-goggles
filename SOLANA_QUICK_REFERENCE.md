@@ -1,5 +1,10 @@
 # Solana Build Quick Reference
 
+> **💡 Script Permission Error?** If you get "No such file or directory" when running `./scripts/build-solana.sh`:
+> - Run `bash scripts/setup-scripts.sh` first to fix permissions
+> - OR run `bash scripts/build-solana.sh` instead of `./scripts/build-solana.sh`
+> - See [SOLANA_DEPLOYMENT_TROUBLESHOOTING.md](./SOLANA_DEPLOYMENT_TROUBLESHOOTING.md) for more help
+
 ## ❌ Common Error: Using --target Flag
 
 ### The Problem
@@ -80,12 +85,15 @@ solana balance
 
 | Error | Solution |
 |-------|----------|
+| `No such file or directory` | Run `bash scripts/setup-scripts.sh` or use `bash scripts/build-solana.sh` |
 | `--target flag not recognized` | Remove `--target` flag or use `anchor build` |
 | `cargo build-sbf: command not found` | Install Solana CLI: `sh -c "$(curl -sSfL https://release.solana.com/stable/install)"` |
 | `anchor: command not found` | Install Anchor: `cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked` |
 | `Insufficient funds` | **Devnet:** `solana airdrop 2` **Mainnet:** Transfer SOL to wallet |
 | `could not find Cargo.toml` | Make sure you're in `contracts/solana` directory |
 | `Program modify data: Invalid argument` | Program already deployed, use `--force` flag |
+
+**For more solutions, see [SOLANA_DEPLOYMENT_TROUBLESHOOTING.md](./SOLANA_DEPLOYMENT_TROUBLESHOOTING.md)**
 
 ## 📖 Full Documentation
 

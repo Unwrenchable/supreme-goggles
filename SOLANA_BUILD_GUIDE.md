@@ -2,6 +2,8 @@
 
 This guide provides step-by-step instructions for building and deploying the Solana domain registry program to devnet (test network) and mainnet.
 
+> **💡 Having Issues?** See [SOLANA_DEPLOYMENT_TROUBLESHOOTING.md](./SOLANA_DEPLOYMENT_TROUBLESHOOTING.md) for solutions to common problems like "No such file or directory" errors.
+
 ## 🚨 Common Error: Using `cargo build-sbf` Incorrectly
 
 **❌ WRONG:**

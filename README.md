@@ -68,10 +68,13 @@ npm run deploy:polygon
 
 **Solana:**
 ```bash
-# Build and deploy to Solana devnet
+# If scripts aren't executable, run this one-liner first:
+chmod +x scripts/*.sh scripts/*.js 2>/dev/null || find scripts -type f \( -name "*.sh" -o -name "*.js" \) -exec chmod +x {} \;
+
+# Then build and deploy to Solana devnet
 ./scripts/build-solana.sh --deploy devnet --treasury YOUR_WALLET_ADDRESS
 
-# See SOLANA_BUILD_GUIDE.md for detailed instructions
+# If you still get errors, see: scripts/README.md or SOLANA_DEPLOYMENT_TROUBLESHOOTING.md
 ```
 
 See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for full instructions on all chains.
@@ -82,7 +85,9 @@ See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for full instructions on all ch
 |----------|---------------|
 | **[QUICK_DEPLOY.md](./QUICK_DEPLOY.md)** | 5-minute Vercel deployment guide |
 | **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** | Deploy smart contracts to blockchains |
+| **[scripts/README.md](./scripts/README.md)** | **Deployment scripts guide & quick fixes** |
 | **[SOLANA_BUILD_GUIDE.md](./SOLANA_BUILD_GUIDE.md)** | **Build & deploy Solana programs (fixes common errors)** |
+| **[SOLANA_DEPLOYMENT_TROUBLESHOOTING.md](./SOLANA_DEPLOYMENT_TROUBLESHOOTING.md)** | **Troubleshoot Solana deployment issues** |
 | **[SOLANA_QUICK_REFERENCE.md](./SOLANA_QUICK_REFERENCE.md)** | **Quick reference for Solana build commands** |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Technical architecture and design |
 | **[MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md)** | Mobile wallet connection (Phantom, MetaMask) |
