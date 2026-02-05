@@ -17,9 +17,11 @@ const config: HardhatUserConfig = {
   networks: {
     // Local development
     hardhat: {
+      type: "hardhat",
       chainId: 31337,
     },
     localhost: {
+      type: "localhost",
       url: "http://127.0.0.1:8545",
     },
     
