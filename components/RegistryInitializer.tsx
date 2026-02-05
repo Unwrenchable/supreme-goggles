@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { 
-  checkRegistryInitialized, 
-  initializeSolanaRegistry,
-  getSolanaExplorerUrl 
-} from '@/lib/solana';
+import { getSolanaExplorerUrl } from '@/lib/solana';
 
 interface RegistryInitializerProps {
   onInitialized?: () => void;
@@ -15,67 +11,12 @@ interface RegistryInitializerProps {
 
 export default function RegistryInitializer({ onInitialized, onError }: RegistryInitializerProps) {
   const wallet = useWallet();
-  const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('checking');
+  const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('needs-init');
   const [errorMessage, setErrorMessage] = useState('');
-  const [txSignature, setTxSignature] = useState('');
+  const [txSignature] = useState('');
 
-  useEffect(() => {
-    checkRegistry();
-  }, []);
-
-  const checkRegistry = async () => {
-    setStatus('checking');
-    const result = await checkRegistryInitialized();
-    
-    if (result.initialized) {
-      setStatus('ready');
-      onInitialized?.();
-    } else if (result.error) {
-      setStatus('needs-init');
-    }
-  };
-
-  const handleInitialize = async () => {
-    if (!wallet.connected || !wallet.publicKey) {
-      setErrorMessage('Please connect your wallet first');
-      setStatus('error');
-      onError?.('Wallet not connected');
-      return;
-    }
-
-    setStatus('initializing');
-    setErrorMessage('');
-
-    try {
-      const treasuryAddress = process.env.NEXT_PUBLIC_SOLANA_PAYMENT_ADDRESS;
-      const result = await initializeSolanaRegistry(wallet, treasuryAddress, 0);
-
-      if (result.success && result.signature) {
-        setTxSignature(result.signature);
-        setStatus('ready');
-        onInitialized?.();
-      } else {
-        setErrorMessage(result.error || 'Failed to initialize registry');
-        setStatus('error');
-        onError?.(result.error || 'Failed to initialize');
-      }
-    } catch (error: any) {
-      setErrorMessage(error?.message || 'Unknown error occurred');
-      setStatus('error');
-      onError?.(error?.message);
-    }
-  };
-
-  if (status === 'checking') {
-    return (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-          <p className="text-blue-800">Checking registry status...</p>
-        </div>
-      </div>
-    );
-  }
+  const programAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR';
+  const explorerUrl = `https://explorer.solana.com/address/${programAddress}?cluster=devnet`;
 
   if (status === 'ready') {
     return (
@@ -115,18 +56,19 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
               The Solana domain registry needs to be initialized before domains can be registered. 
               This is a one-time setup that configures the treasury address and registration fees.
             </p>
-            <button
-              onClick={handleInitialize}
-              disabled={!wallet.connected}
-              className="bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              {wallet.connected ? 'Initialize Registry Now' : 'Connect Wallet to Initialize'}
-            </button>
-            {!wallet.connected && (
-              <p className="text-sm text-yellow-700 mt-2">
-                Please connect your Phantom wallet to initialize the registry.
+            <div className="space-y-3">
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              >
+                Initialize via Solana Explorer →
+              </a>
+              <p className="text-sm text-yellow-700">
+                Or run: <code className="bg-yellow-100 px-2 py-1 rounded">./initialize-registry.sh</code> from your terminal
               </p>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -157,12 +99,14 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
           <div className="flex-1">
             <h3 className="text-red-900 font-semibold mb-2">Initialization Failed</h3>
             <p className="text-red-800 text-sm mb-4">{errorMessage}</p>
-            <button
-              onClick={handleInitialize}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            <a
+              href={explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
             >
-              Try Again
-            </button>
+              Try via Solana Explorer →
+            </a>
           </div>
         </div>
       </div>
