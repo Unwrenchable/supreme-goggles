@@ -2,6 +2,18 @@
 
 This guide addresses common issues when deploying the Solana domain registry program to devnet or mainnet.
 
+## ⚡ Quick Fix (Copy & Paste)
+
+**If you're getting "No such file or directory" errors, run this ONE command:**
+
+```bash
+chmod +x scripts/*.sh scripts/*.js 2>/dev/null || find scripts -type f \( -name "*.sh" -o -name "*.js" \) -exec chmod +x {} \;
+```
+
+This fixes all permission issues instantly. After running it, try your deployment command again!
+
+---
+
 ## 🚨 Common Error: "No such file or directory" when running scripts
 
 ### Problem
@@ -16,15 +28,23 @@ This error occurs when the script files don't have executable permissions, which
 - You cloned on Windows without proper Git configuration
 - The files were copied without preserving permissions
 
-### Solution 1: Run the Setup Script (Recommended)
+### Solution 1: One-Liner Fix (Fastest)
 ```bash
-# Make the setup script executable and run it
+# Copy and paste this single command:
+chmod +x scripts/*.sh scripts/*.js 2>/dev/null || find scripts -type f \( -name "*.sh" -o -name "*.js" \) -exec chmod +x {} \;
+```
+
+This command makes all scripts executable in one go. Works even if some files don't exist.
+
+### Solution 2: Run the Setup Script
+```bash
+# If the setup script exists, run it:
 bash scripts/setup-scripts.sh
 ```
 
-This will automatically set the correct permissions for all deployment scripts.
+**Note:** If you get "No such file or directory" for setup-scripts.sh itself, use Solution 1 instead.
 
-### Solution 2: Manually Set Permissions
+### Solution 3: Manually Set Permissions
 ```bash
 # Make all scripts executable
 chmod +x scripts/build-solana.sh
@@ -35,13 +55,13 @@ chmod +x scripts/setup-scripts.sh
 ./scripts/build-solana.sh --deploy devnet --treasury YOUR_WALLET
 ```
 
-### Solution 3: Run with bash Directly
+### Solution 4: Run with bash Directly
 You can always run scripts directly with bash, even without execute permissions:
 ```bash
 bash scripts/build-solana.sh --deploy devnet --treasury YOUR_WALLET
 ```
 
-### Solution 4: Clone Repository with Git (Best Practice)
+### Solution 5: Clone Repository with Git (Best Practice)
 Instead of downloading as ZIP, clone with Git to preserve all file attributes:
 ```bash
 # Clone the repository
