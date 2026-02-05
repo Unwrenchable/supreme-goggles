@@ -120,6 +120,10 @@ if [ -f "target/deploy/domain_registry.so" ]; then
         PROGRAM_ID=$(solana address -k target/deploy/domain_registry-keypair.json 2>/dev/null || echo "")
         if [ -n "$PROGRAM_ID" ]; then
             echo -e "${GREEN}🆔 Program ID: $PROGRAM_ID${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Could not retrieve Program ID${NC}"
+            echo -e "${YELLOW}   This may mean Solana CLI is not installed or the keypair file is invalid${NC}"
+            echo -e "${YELLOW}   You can get the program ID later with: solana address -k target/deploy/domain_registry-keypair.json${NC}"
         fi
     fi
     echo ""

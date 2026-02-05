@@ -1,6 +1,6 @@
 # Solana Program Build & Deploy Guide
 
-This guide provides step-by-step instructions for building and deploying the Solana domain registry program to testnet and mainnet.
+This guide provides step-by-step instructions for building and deploying the Solana domain registry program to devnet (test network) and mainnet.
 
 ## 🚨 Common Error: Using `cargo build-sbf` Incorrectly
 
@@ -178,11 +178,13 @@ solana config get
 
 ### Step 2: Ensure You Have Sufficient SOL
 ```bash
-# Check balance (you need ~5-10 SOL for deployment)
+# Check balance (you need ~2-5 SOL for deployment, depending on program size)
 solana balance
 
 # If insufficient, transfer SOL to your wallet
 ```
+
+**Note:** Deployment cost depends on program size. Typical costs are 1-3 SOL, but having 5 SOL provides a comfortable buffer for larger programs or multiple deployment attempts.
 
 ### Step 3: Deploy
 ```bash
