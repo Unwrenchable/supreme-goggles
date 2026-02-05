@@ -152,6 +152,8 @@ npm install --legacy-peer-deps
 npm run build
 ```
 
+For detailed dependency troubleshooting, see [DEPENDENCY_MANAGEMENT.md](./DEPENDENCY_MANAGEMENT.md).
+
 ### Environment variables not working
 
 1. Verify variables are prefixed with `NEXT_PUBLIC_`

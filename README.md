@@ -76,6 +76,7 @@ npm run deploy:polygon
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Technical architecture and design |
 | **[MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md)** | Mobile wallet connection (Phantom, MetaMask) |
 | **[CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md)** | Explanation of common build warnings |
+| **[DEPENDENCY_MANAGEMENT.md](./DEPENDENCY_MANAGEMENT.md)** | Dependency troubleshooting and npm configuration |
 | **[SECURITY.md](./SECURITY.md)** | Security considerations and best practices |
 | **[CONTRIBUTING.md](./CONTRIBUTING.md)** | How to contribute to this project |
 
