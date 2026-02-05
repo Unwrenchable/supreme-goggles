@@ -188,6 +188,24 @@ await contract.checkAvailability("test.fizz");
 
 ## 🌐 Solana Deployment
 
+> **📖 For detailed Solana build instructions and troubleshooting, see [SOLANA_BUILD_GUIDE.md](./SOLANA_BUILD_GUIDE.md)**
+> 
+> **Common Error:** If you get `--target flag not recognized`, you're using the wrong command. See the guide above!
+
+### Quick Start Method (Recommended)
+
+Use our helper script to build and deploy in one step:
+
+```bash
+# Build and deploy to devnet
+./scripts/build-solana.sh --deploy devnet --treasury YOUR_WALLET_ADDRESS
+
+# Build and deploy to mainnet
+./scripts/build-solana.sh --deploy mainnet-beta --treasury YOUR_WALLET_ADDRESS
+```
+
+### Manual Method
+
 ### Step 1: Install Dependencies
 
 ```bash
@@ -197,7 +215,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Install Solana CLI
 sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 
-# Install Anchor
+# Install Anchor (recommended)
 cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
 ```
 
@@ -216,9 +234,16 @@ solana airdrop 2
 
 ### Step 3: Build Program
 
+**⚠️ IMPORTANT:** Do NOT use `cargo build-sbf --target=...` - this will fail!
+
 ```bash
 cd contracts/solana
+
+# Use Anchor (recommended)
 anchor build
+
+# OR use cargo build-sbf WITHOUT --target flag
+cargo build-sbf
 ```
 
 ### Step 4: Deploy Program

@@ -60,18 +60,31 @@ npm run deploy:arbitrum
 
 ### Solana
 
-1. **Install Anchor (if not installed):**
+> **⚠️ Important:** See [SOLANA_BUILD_GUIDE.md](../SOLANA_BUILD_GUIDE.md) for detailed instructions and troubleshooting.
+> 
+> **Common Error:** Do NOT use `cargo build-sbf --target=...` - it will fail. Use `anchor build` or `cargo build-sbf` (without --target).
+
+1. **Quick Method - Use our helper script:**
+```bash
+# Build only
+./scripts/build-solana.sh
+
+# Build and deploy to devnet
+./scripts/build-solana.sh --deploy devnet --treasury YOUR_TREASURY_PUBKEY
+```
+
+2. **Manual Method - Install Anchor:**
 ```bash
 cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
 ```
 
-2. **Build the program:**
+3. **Build the program:**
 ```bash
 cd contracts/solana
 anchor build
 ```
 
-3. **Deploy:**
+4. **Deploy:**
 ```bash
 # Devnet
 ./scripts/deploy-solana.sh devnet YOUR_TREASURY_PUBKEY 100000
