@@ -143,3 +143,199 @@ export const getSolanaAddressExplorerUrl = (address: string): string => {
   const cluster = network === WalletAdapterNetwork.Mainnet ? '' : `?cluster=${network}`;
   return `https://explorer.solana.com/address/${address}${cluster}`;
 };
+
+/**
+ * Solana Domain Registry Functions
+ * These functions only work client-side to avoid SSR issues
+ */
+
+/**
+ * Get the registry PDA address
+ */
+export const getRegistryPDA = async (programId: any): Promise<[any, number]> => {
+  // Only import on client side to avoid SSR issues
+  if (typeof window === 'undefined') {
+    throw new Error('This function can only be called on the client side');
+  }
+  
+  const { PublicKey } = await import('@solana/web3.js');
+  const pk = new PublicKey(programId);
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from('registry')],
+    pk
+  );
+};
+any;
+  error?: string;
+}> => {
+  // Only run on client side
+  if (typeof window === 'undefined') {
+    return { initialized: false, error: 'Must be called on client side' };
+  }
+  
+  try {
+    const { Connection, PublicKey } = await import('@solana/web3.js');
+    
+    const contractAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS;
+    if (!contractAddress) {
+      return { initialized: false, error: 'Contract address not configured' };
+    }
+
+    const programId = new PublicKey(contractAddress);
+    const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+    
+    const [registryPDA] = await getRegistryPDA(contractAddresst address not configured' };
+    }
+
+    const programId = new PublicKey(contractAddress);
+    const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+    
+    const [registryPDA] = getRegistryPDA(programId);
+    
+    // Check if the registry account exists
+    const accountInfo = await connection.getAccountInfo(registryPDA);
+    
+    if (!accountInfo) {
+      return { 
+        initialized: false, 
+        registryPDA,
+        error: 'Registry not initialized'
+      };
+    }
+
+    return { 
+      initialized: true, 
+      registryPDA 
+    };
+  } catch (error: any) {
+    console.error('Error checking registry:', error);
+    return { 
+      initialized: false, 
+      error: error?.message || 'Failed to check registry status'
+    };
+  }
+};
+// Only run on client side
+  if (typeof window === 'undefined') {
+    return { success: false, error: 'Must be called on client side' };
+  }
+  
+  try {
+    if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
+      return { success: false, error: 'Wallet not connected' };
+    }
+
+    const { Connection, PublicKey, SystemProgram } = await import('@solana/web3.js');
+    const { Program, BN } = await import('@coral-xyz/anchor');
+
+    const contractAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS;
+    if (!contractAddress) {
+      return { success: false, error: 'Contract address not configured' };
+    }
+
+    const programId = new PublicKey(contractAddress);
+    const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+    
+    // Use provided treasury or default to wallet's public key
+    const treasury = treasuryAddress 
+      ? new PublicKey(treasuryAddress)
+      : wallet.publicKey;
+
+    const [registryPDA] = await getRegistryPDA(contractAddressC_SOLANA_CONTRACT_ADDRESS;
+    if (!contractAddress) {
+      return { success: false, error: 'Contract address not configured' };
+    }
+
+    const programId = new PublicKey(contractAddress);
+    const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+    
+    // Use provided treasury or default to wallet's public key
+    const treasury = treasuryAddress 
+      ? new PublicKey(treasuryAddress)
+      : wallet.publicKey;
+
+    const [registryPDA] = getRegistryPDA(programId);
+
+    // Build the initialize transaction
+    const program = new Program(
+      await Program.fetchIdl(programId, { connection }) as any,
+      programId,
+      { connection } as any
+    );
+
+    const tx = await program.methods
+      .initialize(treasury, new BN(registrationFee))
+      .accounts({
+        registry: registryPDA,
+        authority: wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .transaction();
+
+    tx.feePayer = wallet.publicKey;
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+    // Sign and send the transaction
+    const signedTx = await wallet.signTransaction(tx);
+    const signature = await connection.sendRawTransaction(signedTx.serialize());
+    
+    // Wait for confirmation
+    await connection.confirmTransaction(signature, 'confirmed');
+
+    console.log('Registry initialized:', signature);
+    
+    return { 
+      success: true, 
+      signature 
+    };
+  } catch (error: any) {
+    console.error('Error initializing registry:', error);
+    return { 
+      success: false, 
+      error: error?.message || 'Failed to initialize registry'
+    };
+  }
+};
+
+/**
+ * Auto-initialize registry if needed (prompts user)
+ */
+export const autoInitializeRegistry = async (
+  wallet: any,
+  onStatusChange?: (status: string) => void
+): Promise<boolean> => {
+  // Only run on client side
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  
+  try {
+    onStatusChange?.('Checking registry status...');
+    
+    const status = await checkRegistryInitialized();
+    
+    if (status.initialized) {
+      onStatusChange?.('Registry is ready!');
+      return true;
+    }
+
+    // Registry needs initialization
+    onStatusChange?.('Registry needs initialization. Preparing transaction...');
+    
+    // Get treasury address from environment or use wallet
+    const treasuryAddress = process.env.NEXT_PUBLIC_SOLANA_PAYMENT_ADDRESS;
+    
+    const result = await initializeSolanaRegistry(wallet, treasuryAddress, 0);
+    
+    if (result.success) {
+      onStatusChange?.(`Registry initialized! Tx: ${result.signature?.slice(0, 8)}...`);
+      return true;
+    } else {
+      onStatusChange?.(`Initialization failed: ${result.error}`);
+      return false;
+    }
+  } catch (error: any) {
+    onStatusChange?.(`Error: ${error?.message || 'Unknown error'}`);
+    return false;
+  }
+};

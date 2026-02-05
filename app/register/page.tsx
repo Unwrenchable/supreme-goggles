@@ -3,26 +3,38 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, Suspense } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { BrowserProvider } from 'ethers';
 import { getDomainPrice } from '@/lib/mockData';
-import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE } from '@/lib/contract';
+import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE, getChainForExtension, SOLANA_NETWORK } from '@/lib/contract';
 import { registerDomainOnChain, formatTransactionError } from '@/lib/blockchain';
 import WalletQRInfo from '@/components/WalletQRInfo';
+import RegistryInitializer from '@/components/RegistryInitializer';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  
+  // EVM wallet
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
+  
+  // Solana wallet
+  const solanaWallet = useWallet();
   
   const domain = searchParams.get('domain') || '';
   const ext = searchParams.get('ext') || '.web3';
   const fullDomain = `${domain}${ext}`;
   
+  // Determine which chain this extension uses
+  const chainType = getChainForExtension(ext);
+  const isSolana = chainType === 'solana';
+  
   const [isRegistering, setIsRegistering] = useState(false);
   const [txHash, setTxHash] = useState<string>('');
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [registryReady, setRegistryReady] = useState(false);
 
   const priceInfo = getDomainPrice(domain, ext);
   const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
@@ -37,10 +49,22 @@ function RegisterForm() {
   const usdValue = priceInfo.price * usdRate;
   
   const isProductionMode = USE_PRODUCTION_MODE && isProductionConfigured(ext);
+  
+  // Check which wallet is connected
+  const walletConnected = isSolana ? solanaWallet.connected : isConnected;
+  const walletAddress = isSolana 
+    ? solanaWallet.publicKey?.toBase58() 
+    : address;
 
   const handleRegister = async () => {
-    if (!isConnected) {
-      setErrorMessage('Please connect your wallet first');
+    if (!walletConnected) {
+      setErrorMessage(`Please connect your ${isSolana ? 'Phantom' : 'wallet'} first`);
+      return;
+    }
+
+    // For Solana, check if registry is ready
+    if (isSolana && isProductionMode && !registryReady) {
+      setErrorMessage('Registry not initialized. Please initialize first.');
       return;
     }
 
@@ -50,8 +74,18 @@ function RegisterForm() {
     setTxHash('');
     
     try {
-      // Production mode: Real blockchain transaction
-      if (isProductionMode && walletClient) {
+      // Solana registration (production mode)
+      if (isSolana && isProductionMode) {
+        // TODO: Implement Solana domain registration
+        // For now, simulate it
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setTxStatus('success');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2000);
+      }
+      // EVM Production mode: Real blockchain transaction
+      else if (isProductionMode && walletClient && !isSolana) {
         // Convert walletClient to ethers provider
         // Note: wagmi's walletClient is compatible with EIP-1193 provider interface
         const provider = new BrowserProvider(walletClient as any);
@@ -119,6 +153,14 @@ function RegisterForm() {
               </div>
             </div>
           </div>
+        )}
+        
+        {/* Solana Registry Initializer - only show for Solana domains in production */}
+        {isSolana && isProductionMode && (
+          <RegistryInitializer 
+            onInitialized={() => setRegistryReady(true)}
+            onError={(error) => setErrorMessage(error)}
+          />
         )}
         
         <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 mb-8 shadow-2xl">
@@ -216,30 +258,37 @@ function RegisterForm() {
             </div>
           )}
 
-          {!isConnected ? (
+          {!walletConnected ? (
             <>
               <WalletQRInfo />
               <div className="text-center py-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
-                <p className="text-amber-400 font-medium">Please connect your wallet to continue</p>
+                <p className="text-amber-400 font-medium">
+                  Please connect your {isSolana ? 'Phantom wallet (Solana)' : 'wallet'} to continue
+                </p>
               </div>
             </>
           ) : (
             <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 mb-6">
               <p className="text-violet-300 text-sm font-medium">
-                <strong>Connected:</strong> {address?.slice(0, 6)}...{address?.slice(-4)}
+                <strong>Connected:</strong> {walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}
               </p>
               <p className="text-indigo-300 text-xs mt-2 flex items-start gap-2">
                 <span>💡</span>
-                <span>Ensure your wallet is on {extensionInfo.chain} network to complete payment in {priceInfo.currencySymbol}</span>
+                <span>
+                  {isSolana 
+                    ? `Using Solana ${SOLANA_NETWORK} network` 
+                    : `Ensure your wallet is on ${extensionInfo.chain} network to complete payment in ${priceInfo.currencySymbol}`
+                  }
+                </span>
               </p>
             </div>
           )}
 
           <button
             onClick={handleRegister}
-            disabled={!isConnected || isRegistering || txStatus === 'success'}
+            disabled={!walletConnected || isRegistering || txStatus === 'success' || (isSolana && isProductionMode && !registryReady)}
             className={`w-full px-8 py-4 font-semibold text-base rounded-xl transition-all duration-200 shadow-lg ${
-              isConnected && !isRegistering && txStatus !== 'success'
+              walletConnected && !isRegistering && txStatus !== 'success' && (!isSolana || !isProductionMode || registryReady)
                 ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/50 hover:shadow-violet-500/70 hover:scale-[1.02]'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed'
             }`}

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("6TYgZUksdPpdrZAHs1FeDN9QKcJGCwovEwHSY4ncCuSy");
 
 #[program]
 pub mod supreme_goggles {

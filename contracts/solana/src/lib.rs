@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_instruction;
 
-// TODO: After deployment, replace this with your actual program ID
-// You can get it by running: solana address -k target/deploy/domain_registry-keypair.json
-declare_id!("DomAin1111111111111111111111111111111111111"); // Placeholder - UPDATE AFTER DEPLOYMENT
+// Deployed program ID on Solana devnet
+// Deployment signature: S11ti127cpRWfEevYtJCx2FsNrNVE5vYKBF1UqqG67gWyNokDLyg46VAvCfPeuEPusgsC
+declare_id!("6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR");
 
 #[program]
 pub mod domain_registry {

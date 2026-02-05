@@ -1,5 +1,5 @@
 [programs.devnet]
-supreme_goggles = "replace-this-with-your-program-id"
+supreme_goggles = "6TYgZUksdPpdrZAHs1FeDN9QKcJGCwovEwHSY4ncCuSy"
 
 [provider]
 cluster = "devnet"

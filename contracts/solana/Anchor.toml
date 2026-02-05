@@ -8,7 +8,7 @@ skip-lint = false
 domain_registry = "DomAin1111111111111111111111111111111111111"
 
 [programs.devnet]
-domain_registry = "DomAin1111111111111111111111111111111111111"
+domain_registry = "6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR"
 
 [programs.mainnet]
 domain_registry = "DomAin1111111111111111111111111111111111111"
