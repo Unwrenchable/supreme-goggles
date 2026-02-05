@@ -1,0 +1,9 @@
+[programs.devnet]
+supreme_goggles = "replace-this-with-your-program-id"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test-bpf"
