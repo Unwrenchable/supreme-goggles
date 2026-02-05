@@ -57,9 +57,8 @@ npm run dev
 
 To enable real blockchain transactions (not demo mode):
 
+**EVM Chains (Ethereum, Polygon, BSC, etc.):**
 ```bash
-# See DEPLOYMENT_GUIDE.md for full instructions
-
 # Quick deploy to Polygon testnet (free)
 npm run deploy:mumbai
 
@@ -67,12 +66,24 @@ npm run deploy:mumbai
 npm run deploy:polygon
 ```
 
+**Solana:**
+```bash
+# Build and deploy to Solana devnet
+./scripts/build-solana.sh --deploy devnet --treasury YOUR_WALLET_ADDRESS
+
+# See SOLANA_BUILD_GUIDE.md for detailed instructions
+```
+
+See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for full instructions on all chains.
+
 ## 📚 Documentation
 
 | Document | What's Inside |
 |----------|---------------|
 | **[QUICK_DEPLOY.md](./QUICK_DEPLOY.md)** | 5-minute Vercel deployment guide |
 | **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** | Deploy smart contracts to blockchains |
+| **[SOLANA_BUILD_GUIDE.md](./SOLANA_BUILD_GUIDE.md)** | **Build & deploy Solana programs (fixes common errors)** |
+| **[SOLANA_QUICK_REFERENCE.md](./SOLANA_QUICK_REFERENCE.md)** | **Quick reference for Solana build commands** |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Technical architecture and design |
 | **[MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md)** | Mobile wallet connection (Phantom, MetaMask) |
 | **[CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md)** | Explanation of common build warnings |
