@@ -1,8 +1,9 @@
 'use client';
 
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useMemo, useCallback } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { WalletError } from '@solana/wallet-adapter-base';
 import { getSolanaEndpoint, useSolanaWallets } from '@/lib/solana';
 
 // Import Solana wallet adapter styles
@@ -39,9 +40,27 @@ export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
   const endpoint = useMemo(() => getSolanaEndpoint(), []);
   const wallets = useSolanaWallets();
 
+  // Handle wallet errors gracefully
+  const onError = useCallback((error: WalletError) => {
+    // User rejected the connection - this is expected behavior, not an error
+    if (error.message?.includes('User rejected') || 
+        error.message?.includes('rejected the request') ||
+        error.name === 'WalletConnectionError') {
+      // Log as info instead of error since user rejection is normal
+      console.info('Wallet connection was declined by user');
+      return;
+    }
+    
+    // For other wallet errors, log as warnings with helpful context
+    console.warn('Wallet error occurred:', {
+      name: error.name,
+      message: error.message,
+    });
+  }, []);
+
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets} autoConnect onError={onError}>
         <WalletModalProvider>
           {children}
         </WalletModalProvider>

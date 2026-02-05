@@ -50,6 +50,28 @@ Solflare is a multi-chain wallet supporting both Solana and EVM chains. When it 
 
 **Impact**: None - purely a console log, doesn't affect wallet functionality
 
+### ✅ Wallet Connection Rejection Errors
+
+**Issue**:
+```
+WalletConnectionError: User rejected the request.
+```
+
+**Explanation**:
+When users decline a wallet connection request (by clicking "Cancel" or "Reject" in their wallet), the wallet adapter throws a `WalletConnectionError`. Previously, this error was logged to the console as an uncaught error, making it appear as if something went wrong.
+
+**Resolution**:
+- Added `onError` handler to `SolanaWalletProvider` in `components/SolanaWalletProvider.tsx`
+- User rejection errors are now logged as `console.info()` instead of errors
+- Other wallet errors are logged as warnings with helpful context
+- Provides a better developer experience by clearly distinguishing between expected user actions and actual errors
+
+**Benefits**:
+- ✅ No scary error messages when users decline connection
+- ✅ Console remains clean for debugging real issues
+- ✅ Better distinction between user actions and actual errors
+- ✅ Improved error visibility with structured logging
+
 ## Understanding Wallet Standards
 
 ### Wallet Standard API
@@ -231,6 +253,12 @@ console.log = (function(oldLog) {
 - [Solflare Developer Docs](https://docs.solflare.com/)
 
 ## Changelog
+
+### 2026-02-05
+- ✅ Added `onError` handler to SolanaWalletProvider for graceful error handling
+- ✅ User rejection errors now logged as info instead of errors
+- ✅ Improved error visibility with structured logging
+- ✅ Better developer experience when debugging wallet issues
 
 ### 2024-02-03
 - ✅ Removed PhantomWalletAdapter (now uses Wallet Standard)
