@@ -16,13 +16,14 @@ Modern versions of Phantom wallet now implement the [Wallet Standard](https://gi
 
 **Resolution**:
 - **Removed** `PhantomWalletAdapter` from `lib/solana.ts`
+- **Changed** wallet adapter imports to use individual packages instead of umbrella package
 - Phantom is now **auto-detected** via the Wallet Standard API
 - No functionality is lost - Phantom still works perfectly
 - Eliminates the duplicate registration warning
 
 **Files Changed**:
-- `lib/solana.ts` - Removed PhantomWalletAdapter import and instantiation
-- `components/SolanaWalletProvider.tsx` - Updated documentation
+- `lib/solana.ts` - Removed PhantomWalletAdapter, switched to individual package imports
+- `components/SolanaWalletProvider.tsx` - Added onError handler, updated documentation
 
 **Benefits**:
 - ✅ No more console warnings
@@ -49,6 +50,28 @@ This warning appears when Solflare wallet attempts to detect if MetaMask is inst
 Solflare is a multi-chain wallet supporting both Solana and EVM chains. When it initializes, it checks for other wallet extensions like MetaMask. The warning appears because the detection mechanism receives a response it doesn't explicitly handle.
 
 **Impact**: None - purely a console log, doesn't affect wallet functionality
+
+### ✅ Wallet Connection Rejection Errors
+
+**Issue**:
+```
+WalletConnectionError: User rejected the request.
+```
+
+**Explanation**:
+When users decline a wallet connection request (by clicking "Cancel" or "Reject" in their wallet), the wallet adapter throws a `WalletConnectionError`. Previously, this error was logged to the console as an uncaught error, making it appear as if something went wrong.
+
+**Resolution**:
+- Added `onError` handler to `SolanaWalletProvider` in `components/SolanaWalletProvider.tsx`
+- User rejection errors are now logged as `console.info()` instead of errors
+- Other wallet errors are logged as warnings with helpful context
+- Provides a better developer experience by clearly distinguishing between expected user actions and actual errors
+
+**Benefits**:
+- ✅ No scary error messages when users decline connection
+- ✅ Console remains clean for debugging real issues
+- ✅ Better distinction between user actions and actual errors
+- ✅ Improved error visibility with structured logging
 
 ## Understanding Wallet Standards
 
@@ -231,6 +254,14 @@ console.log = (function(oldLog) {
 - [Solflare Developer Docs](https://docs.solflare.com/)
 
 ## Changelog
+
+### 2026-02-05
+- ✅ Added `onError` handler to SolanaWalletProvider for graceful error handling
+- ✅ User rejection errors now logged as info instead of errors
+- ✅ Improved error visibility with structured logging
+- ✅ Changed wallet adapter imports from umbrella package to individual packages
+- ✅ Reduced potential for loading unwanted Phantom adapter code
+- ✅ Better developer experience when debugging wallet issues
 
 ### 2024-02-03
 - ✅ Removed PhantomWalletAdapter (now uses Wallet Standard)
