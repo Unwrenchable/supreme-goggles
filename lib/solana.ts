@@ -61,7 +61,9 @@ export const getSolanaEndpoint = (): string => {
  * Note: Phantom wallet is not explicitly included as it's now auto-detected
  * via the Wallet Standard API. This prevents duplicate registration warnings.
  * 
- * Wallet adapters are loaded dynamically to avoid SSR issues with indexedDB
+ * Wallet adapters are loaded dynamically to avoid SSR issues with indexedDB.
+ * We import from individual packages rather than the umbrella package to
+ * ensure we're only loading the wallets we explicitly need.
  */
 export const useSolanaWallets = (): Adapter[] => {
   const network = getSolanaNetwork();
@@ -74,27 +76,28 @@ export const useSolanaWallets = (): Adapter[] => {
       }
       
       // Dynamically import wallet adapters to prevent SSR errors
+      // Import from individual packages to avoid loading unused wallet code
       const adapters: Adapter[] = [];
       
       try {
-        // Lazy load Solflare adapter
-        const { SolflareWalletAdapter } = require('@solana/wallet-adapter-wallets');
+        // Lazy load Solflare adapter from individual package
+        const { SolflareWalletAdapter } = require('@solana/wallet-adapter-solflare');
         adapters.push(new SolflareWalletAdapter({ network }));
       } catch (e) {
         console.warn('Failed to load SolflareWalletAdapter:', e);
       }
       
       try {
-        // Lazy load Torus adapter
-        const { TorusWalletAdapter } = require('@solana/wallet-adapter-wallets');
+        // Lazy load Torus adapter from individual package
+        const { TorusWalletAdapter } = require('@solana/wallet-adapter-torus');
         adapters.push(new TorusWalletAdapter());
       } catch (e) {
         console.warn('Failed to load TorusWalletAdapter:', e);
       }
       
       try {
-        // Lazy load Ledger adapter
-        const { LedgerWalletAdapter } = require('@solana/wallet-adapter-wallets');
+        // Lazy load Ledger adapter from individual package
+        const { LedgerWalletAdapter } = require('@solana/wallet-adapter-ledger');
         adapters.push(new LedgerWalletAdapter());
       } catch (e) {
         console.warn('Failed to load LedgerWalletAdapter:', e);
