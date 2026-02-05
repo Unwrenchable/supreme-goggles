@@ -16,13 +16,14 @@ Modern versions of Phantom wallet now implement the [Wallet Standard](https://gi
 
 **Resolution**:
 - **Removed** `PhantomWalletAdapter` from `lib/solana.ts`
+- **Changed** wallet adapter imports to use individual packages instead of umbrella package
 - Phantom is now **auto-detected** via the Wallet Standard API
 - No functionality is lost - Phantom still works perfectly
 - Eliminates the duplicate registration warning
 
 **Files Changed**:
-- `lib/solana.ts` - Removed PhantomWalletAdapter import and instantiation
-- `components/SolanaWalletProvider.tsx` - Updated documentation
+- `lib/solana.ts` - Removed PhantomWalletAdapter, switched to individual package imports
+- `components/SolanaWalletProvider.tsx` - Added onError handler, updated documentation
 
 **Benefits**:
 - ✅ No more console warnings
@@ -258,6 +259,8 @@ console.log = (function(oldLog) {
 - ✅ Added `onError` handler to SolanaWalletProvider for graceful error handling
 - ✅ User rejection errors now logged as info instead of errors
 - ✅ Improved error visibility with structured logging
+- ✅ Changed wallet adapter imports from umbrella package to individual packages
+- ✅ Reduced potential for loading unwanted Phantom adapter code
 - ✅ Better developer experience when debugging wallet issues
 
 ### 2024-02-03
