@@ -83,6 +83,7 @@ See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for full instructions on all ch
 | **[QUICK_DEPLOY.md](./QUICK_DEPLOY.md)** | 5-minute Vercel deployment guide |
 | **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** | Deploy smart contracts to blockchains |
 | **[SOLANA_BUILD_GUIDE.md](./SOLANA_BUILD_GUIDE.md)** | **Build & deploy Solana programs (fixes common errors)** |
+| **[SOLANA_QUICK_REFERENCE.md](./SOLANA_QUICK_REFERENCE.md)** | **Quick reference for Solana build commands** |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Technical architecture and design |
 | **[MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md)** | Mobile wallet connection (Phantom, MetaMask) |
 | **[CONSOLE_WARNINGS.md](./CONSOLE_WARNINGS.md)** | Explanation of common build warnings |
