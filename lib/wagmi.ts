@@ -30,8 +30,8 @@ import {
  * - WalletConnect
  * - Injected wallets
  * 
- * Note: Solana-specific features (native Solana transactions) are not yet supported.
- * For Solana support, additional wallet adapters would need to be integrated.
+ * Note: Solana is fully supported via @solana/wallet-adapter-react.
+ * For Solana domains, use the Phantom wallet to connect and register domains on-chain.
  * 
  * Mobile Connection Process:
  * 1. Click "Connect Wallet" button

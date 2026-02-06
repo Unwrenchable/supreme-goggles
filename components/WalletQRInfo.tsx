@@ -68,21 +68,21 @@ export default function WalletQRInfo() {
               </span>
               <br />
               <span className="inline-flex items-center gap-2 mt-1">
-                🟣 <strong className="text-white">Phantom</strong> (EVM support) • 300+ WalletConnect wallets
+                🟣 <strong className="text-white">Phantom</strong> (EVM + Solana) • 300+ WalletConnect wallets
               </span>
             </p>
             <p className="text-xs text-gray-400">
               <strong className="text-purple-300">Supported Networks:</strong>
               <br />
               <span className="inline-flex items-center gap-2 mt-1">
-                Ethereum • Polygon • Arbitrum • Optimism • Base • BSC • Avalanche • Fantom
+                <strong className="text-purple-400">Solana</strong> (devnet/mainnet) • Ethereum • Polygon • Arbitrum • Optimism • Base • BSC • Avalanche • Fantom
               </span>
             </p>
             <p className="text-xs text-gray-400 mt-3">
               💡 <strong className="text-purple-300">Tip:</strong> Make sure your phone and computer are on the same network for the best connection experience.
             </p>
-            <p className="text-xs text-yellow-400/80 mt-2">
-              ℹ️ <strong>Note:</strong> Native Solana wallet connections are not yet supported. For Solana domains, please use a wallet with EVM chain support.
+            <p className="text-xs text-green-400/80 mt-2">
+              ✅ <strong>Note:</strong> Native Solana wallet connections are now fully supported! Use Phantom to connect and register Solana domains (.fizz, .sol, etc.).
             </p>
           </div>
         </div>
