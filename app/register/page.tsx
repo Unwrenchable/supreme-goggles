@@ -98,8 +98,9 @@ function RegisterForm() {
           programId
         );
         
+        // Domain PDA uses only the domain_name (without extension) as seed
         const [domainPda] = PublicKey.findProgramAddressSync(
-          [Buffer.from('domain'), Buffer.from(fullDomain)],
+          [Buffer.from('domain'), Buffer.from(domain)],
           programId
         );
 
