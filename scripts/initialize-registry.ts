@@ -8,16 +8,19 @@ async function initializeRegistry() {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  // Program ID from deployment
+  // Program ID from deployment  
   const programId = new PublicKey("6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR");
   
-  // Load the IDL
-  const idl = await anchor.Program.fetchIdl(programId, provider);
-  if (!idl) {
-    throw new Error("IDL not found");
-  }
+  // Load the IDL from local file
+  const fs = await import('fs');
+  const idlContent = fs.readFileSync('/workspaces/supreme-goggles/contracts/solana/target/idl/domain_registry.json', 'utf8');
+  const idl = JSON.parse(idlContent);
   
-  const program = new Program(idl, provider);
+  // Ensure metadata has correct address
+  idl.metadata = { address: programId.toString() };
+  
+  // Create program instance
+  const program = new Program(idl as anchor.Idl, provider);
 
   // Treasury address (same as deployer wallet)
   const treasury = provider.wallet.publicKey;
