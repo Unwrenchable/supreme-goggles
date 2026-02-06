@@ -2,7 +2,7 @@
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface DualWalletConnectProps {
   defaultChain?: 'evm' | 'solana';
@@ -22,7 +22,34 @@ interface DualWalletConnectProps {
  * @param defaultChain - Which chain to show by default ('solana' or 'evm')
  */
 export default function DualWalletConnect({ defaultChain = 'solana' }: DualWalletConnectProps = {}) {
+  const [mounted, setMounted] = useState(false);
   const [activeChain, setActiveChain] = useState<'evm' | 'solana'>(defaultChain);
+
+  // Handle client-side mounting to prevent hydration errors
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render wallets until mounted (prevents hydration mismatch)
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="bg-black/30 rounded-lg p-1 flex gap-1">
+            <div className="px-3 py-1.5 rounded-md text-sm font-medium bg-purple-600 text-white">
+              Solana
+            </div>
+            <div className="px-3 py-1.5 rounded-md text-sm font-medium text-gray-400">
+              EVM
+            </div>
+          </div>
+          <div className="px-4 py-2 bg-gray-700 rounded-lg text-sm">
+            Loading...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2">

@@ -104,6 +104,15 @@ function RegisterForm() {
           programId
         );
 
+        // Check if domain already exists
+        const existingDomain = await connection.getAccountInfo(domainPda);
+        if (existingDomain) {
+          setErrorMessage(`Domain "${fullDomain}" is already registered. Please try a different name.`);
+          setTxStatus('error');
+          setIsRegistering(false);
+          return;
+        }
+
         // Get registry account to fetch treasury address
         const registryAccount = await connection.getAccountInfo(registryPda);
         if (!registryAccount) {
@@ -212,7 +221,16 @@ function RegisterForm() {
     } catch (error: any) {
       console.error('Registration error:', error);
       setTxStatus('error');
-      setErrorMessage(formatTransactionError(error));
+      
+      // Handle specific Solana errors
+      const errorMsg = error?.message || error?.toString() || '';
+      if (errorMsg.includes('already in use') || errorMsg.includes('Account already exists')) {
+        setErrorMessage(`Domain "${fullDomain}" is already registered. Please try a different name.`);
+      } else if (errorMsg.includes('User rejected') || errorMsg.includes('User cancelled')) {
+        setErrorMessage('Transaction cancelled by user');
+      } else {
+        setErrorMessage(formatTransactionError(error));
+      }
     } finally {
       setIsRegistering(false);
     }
