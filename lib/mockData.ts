@@ -5,6 +5,9 @@ export interface Domain {
   registeredAt: number;
   isActive: boolean;
   records: Record<string, string>;
+  chain?: string; // Optional: 'Solana', 'Ethereum', 'Polygon', etc.
+  registrationDate?: string; // Optional ISO date string
+  expirationDate?: string; // Optional expiration or 'Lifetime'
 }
 
 export const mockDomains: Domain[] = [

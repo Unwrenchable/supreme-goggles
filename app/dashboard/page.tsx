@@ -1,6 +1,7 @@
 'use client';
 
 import { useAccount, usePublicClient } from 'wagmi';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useState, useEffect } from 'react';
 import { getDomainsByOwner as getMockDomains, Domain } from '@/lib/mockData';
 import { getUserDomainsFromChain } from '@/lib/blockchain';
@@ -10,47 +11,126 @@ import WalletQRInfo from '@/components/WalletQRInfo';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { address, isConnected } = useAccount();
+  // EVM wallet
+  const { address: evmAddress, isConnected: evmConnected } = useAccount();
   const publicClient = usePublicClient();
+  
+  // Solana wallet
+  const solanaWallet = useWallet();
+  const solanaAddress = solanaWallet.publicKey?.toBase58();
   
   const [userDomains, setUserDomains] = useState<Domain[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // Determine which wallet is connected
+  const isConnected = evmConnected || solanaWallet.connected;
+  const displayAddress = solanaWallet.connected ? solanaAddress : evmAddress;
+
   useEffect(() => {
     const fetchDomains = async () => {
-      if (!address) {
-        setUserDomains([]);
-        setIsLoading(false);
-        setFetchError(null);
-        return;
-      }
-
       setIsLoading(true);
       setFetchError(null);
 
       try {
-        // Fetch domains from blockchain or mock data
-        const domains = await getUserDomainsFromChain(
-          address,
-          publicClient as any
-        );
+        let domains: Domain[] = [];
+
+        // Fetch Solana domains if Solana wallet connected
+        if (solanaWallet.connected && solanaWallet.publicKey && USE_PRODUCTION_MODE) {
+          const { Connection, PublicKey } = await import('@solana/web3.js');
+          const connection = new Connection(
+            process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'mainnet-beta'
+              ? 'https://api.mainnet-beta.solana.com'
+              : 'https://api.devnet.solana.com',
+            'confirmed'
+          );
+          
+          const programId = new PublicKey(
+            process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || 
+            '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR'
+          );
+
+          // Get all program accounts
+          const accounts = await connection.getProgramAccounts(programId, {
+            filters: [
+              {
+                memcmp: {
+                  offset: 8, // Skip 8-byte discriminator
+                  bytes: solanaWallet.publicKey.toBase58(),
+                },
+              },
+            ],
+          });
+
+          // Parse domain accounts
+          for (const { pubkey, account } of accounts) {
+            try {
+              const data = account.data;
+              if (data.length < 8) continue;
+
+              // Parse domain data (simplified - you may need to adjust based on your struct layout)
+              // Skip discriminator (8 bytes) + owner pubkey (32 bytes)
+              let offset = 40;
+              
+              // Read domain_name (4-byte length + string)
+              const nameLen = data.readUInt32LE(offset);
+              offset += 4;
+              const domainName = data.slice(offset, offset + nameLen).toString('utf-8');
+              offset += nameLen;
+              
+              // Read extension (4-byte length + string)
+              const extLen = data.readUInt32LE(offset);
+              offset += 4;
+              const extension = data.slice(offset, offset + extLen).toString('utf-8');
+              
+              domains.push({
+                name: domainName,
+                extension: extension,
+                owner: solanaWallet.publicKey.toBase58(),
+                registeredAt: Date.now(),
+                isActive: true,
+                records: {
+                  wallet: solanaWallet.publicKey.toBase58(),
+                },
+                chain: 'Solana',
+              });
+            } catch (parseError) {
+              console.error('Error parsing domain:', parseError);
+            }
+          }
+        }
+        // Fetch EVM domains if EVM wallet connected
+        else if (evmConnected && evmAddress) {
+          domains = await getUserDomainsFromChain(evmAddress, publicClient as any);
+        }
+        // Demo mode fallback
+        else if (!USE_PRODUCTION_MODE && displayAddress) {
+          domains = getMockDomains(displayAddress);
+        }
 
         setUserDomains(domains);
       } catch (error) {
         console.error('Failed to fetch domains:', error);
-        // Set error state to inform user
         setFetchError('Failed to fetch domains from blockchain. Showing cached data.');
+        
         // Fallback to mock data
-        const mockDomains = getMockDomains(address);
-        setUserDomains(mockDomains);
+        if (displayAddress) {
+          const mockDomains = getMockDomains(displayAddress);
+          setUserDomains(mockDomains);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchDomains();
-  }, [address, publicClient]);
+    if (isConnected) {
+      fetchDomains();
+    } else {
+      setUserDomains([]);
+      setIsLoading(false);
+      setFetchError(null);
+    }
+  }, [solanaWallet.connected, solanaWallet.publicKey, evmConnected, evmAddress, publicClient, displayAddress]);
 
   if (!isConnected) {
     return (
@@ -77,7 +157,9 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">My Domains</h1>
         <p className="text-gray-400">
-          Manage your Web3 domains • Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+          Manage your Web3 domains • Connected: {displayAddress?.slice(0, 6)}...{displayAddress?.slice(-4)}
+          {solanaWallet.connected && <span className="ml-2 text-purple-400">(Solana)</span>}
+          {evmConnected && <span className="ml-2 text-blue-400">(EVM)</span>}
         </p>
         {!USE_PRODUCTION_MODE && (
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-lg">
