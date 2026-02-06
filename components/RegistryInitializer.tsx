@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { getSolanaExplorerUrl, SOLANA_NETWORK } from '@/lib/solana';
+import { getSolanaExplorerUrl, getSolanaNetwork } from '@/lib/solana';
 
 interface RegistryInitializerProps {
   onInitialized?: () => void;
@@ -23,7 +23,8 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
   useEffect(() => {
     async function checkRegistry() {
       try {
-        const rpcUrl = SOLANA_NETWORK === 'mainnet-beta' 
+        const network = getSolanaNetwork();
+        const rpcUrl = network === 'mainnet-beta' 
           ? 'https://api.mainnet-beta.solana.com'
           : 'https://api.devnet.solana.com';
         
