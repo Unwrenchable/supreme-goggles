@@ -12,6 +12,7 @@ interface RegistryInitializerProps {
 
 export default function RegistryInitializer({ onInitialized, onError }: RegistryInitializerProps) {
   const wallet = useWallet();
+  const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('checking');
   const [errorMessage, setErrorMessage] = useState('');
   const [txSignature] = useState('');
@@ -19,8 +20,15 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
   const programAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR';
   const explorerUrl = `https://explorer.solana.com/address/${programAddress}?cluster=devnet`;
 
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Check if registry is initialized
   useEffect(() => {
+    if (!mounted) return;
+
     async function checkRegistry() {
       try {
         const network = getSolanaNetwork();
@@ -53,7 +61,12 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
     }
 
     checkRegistry();
-  }, [programAddress, onInitialized]);
+  }, [mounted, programAddress, onInitialized]);
+
+  // Don't render anything until mounted (prevents hydration errors)
+  if (!mounted) {
+    return null;
+  }
 
   if (status === 'checking') {
     return (

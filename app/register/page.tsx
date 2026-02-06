@@ -76,13 +76,72 @@ function RegisterForm() {
     try {
       // Solana registration (production mode)
       if (isSolana && isProductionMode) {
-        // TODO: Implement Solana domain registration
-        // For now, simulate it
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        if (!solanaWallet.publicKey || !solanaWallet.signTransaction) {
+          setErrorMessage('Wallet not properly connected');
+          setTxStatus('error');
+          return;
+        }
+
+        const { Connection, PublicKey, Transaction, SystemProgram } = await import('@solana/web3.js');
+        
+        const network = SOLANA_NETWORK || 'devnet';
+        const rpcUrl = network === 'mainnet-beta'
+          ? 'https://api.mainnet-beta.solana.com'
+          : 'https://api.devnet.solana.com';
+        
+        const connection = new Connection(rpcUrl, 'confirmed');
+        const programId = new PublicKey(process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR');
+        
+        // Derive PDAs
+        const [registryPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('registry')],
+          programId
+        );
+        
+        const [domainPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('domain'), Buffer.from(fullDomain)],
+          programId
+        );
+
+        // Build register instruction
+        const discriminator = Buffer.from([0xf3, 0x3c, 0x70, 0x6e, 0x48, 0xd5, 0xff, 0x4c]); // registerDomain discriminator
+        const domainBytes = Buffer.from(fullDomain);
+        const domainLength = Buffer.alloc(4);
+        domainLength.writeUInt32LE(domainBytes.length, 0);
+        
+        const instructionData = Buffer.concat([
+          discriminator,
+          domainLength,
+          domainBytes
+        ]);
+
+        const registerIx = {
+          keys: [
+            { pubkey: registryPda, isSigner: false, isWritable: false },
+            { pubkey: domainPda, isSigner: false, isWritable: true },
+            { pubkey: solanaWallet.publicKey, isSigner: true, isWritable: true },
+            { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+          ],
+          programId,
+          data: instructionData,
+        };
+
+        const transaction = new Transaction().add(registerIx);
+        transaction.feePayer = solanaWallet.publicKey;
+        transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        // Sign and send
+        const signed = await solanaWallet.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        
+        // Wait for confirmation
+        await connection.confirmTransaction(signature, 'confirmed');
+        
+        setTxHash(signature);
         setTxStatus('success');
         setTimeout(() => {
           router.push('/dashboard');
-        }, 2000);
+        }, 3000);
       }
       // EVM Production mode: Real blockchain transaction
       else if (isProductionMode && walletClient && !isSolana) {
