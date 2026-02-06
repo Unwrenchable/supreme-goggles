@@ -5,22 +5,6 @@
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
   "regions": ["iad1"],
-  "env": {
-    "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID": "@walletconnect-project-id",
-    "NEXT_PUBLIC_USE_PRODUCTION_MODE": "@use-production-mode",
-    "NEXT_PUBLIC_SOLANA_NETWORK": "@solana-network",
-    "NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS": "@solana-contract-address",
-    "NEXT_PUBLIC_SOLANA_PAYMENT_ADDRESS": "@solana-payment-address",
-    "NEXT_PUBLIC_ETHEREUM_CONTRACT_ADDRESS": "@ethereum-contract-address",
-    "NEXT_PUBLIC_POLYGON_CONTRACT_ADDRESS": "@polygon-contract-address",
-    "NEXT_PUBLIC_BSC_CONTRACT_ADDRESS": "@bsc-contract-address",
-    "NEXT_PUBLIC_ARBITRUM_CONTRACT_ADDRESS": "@arbitrum-contract-address",
-    "NEXT_PUBLIC_OPTIMISM_CONTRACT_ADDRESS": "@optimism-contract-address",
-    "NEXT_PUBLIC_BASE_CONTRACT_ADDRESS": "@base-contract-address",
-    "NEXT_PUBLIC_AVALANCHE_CONTRACT_ADDRESS": "@avalanche-contract-address",
-    "NEXT_PUBLIC_FANTOM_CONTRACT_ADDRESS": "@fantom-contract-address",
-    "NEXT_PUBLIC_PAYMENT_RECIPIENT_ADDRESS": "@payment-recipient-address"
-  },
   "build": {
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1"
