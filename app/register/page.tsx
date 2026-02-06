@@ -82,7 +82,7 @@ function RegisterForm() {
           return;
         }
 
-        const { Connection, PublicKey, Transaction, SystemProgram } = await import('@solana/web3.js');
+        const { Connection, PublicKey, Transaction, SystemProgram, TransactionInstruction } = await import('@solana/web3.js');
         
         const network = SOLANA_NETWORK || 'devnet';
         const rpcUrl = network === 'mainnet-beta'
@@ -103,28 +103,52 @@ function RegisterForm() {
           programId
         );
 
-        // Build register instruction
-        const discriminator = Buffer.from([0xf3, 0x3c, 0x70, 0x6e, 0x48, 0xd5, 0xff, 0x4c]); // registerDomain discriminator
-        const domainBytes = Buffer.from(fullDomain);
-        const domainLength = Buffer.alloc(4);
-        domainLength.writeUInt32LE(domainBytes.length, 0);
+        // Get registry account to fetch treasury address
+        const registryAccount = await connection.getAccountInfo(registryPda);
+        if (!registryAccount) {
+          throw new Error('Registry not initialized');
+        }
+        
+        // Parse treasury address from registry (skip 8-byte discriminator, then 32 bytes for treasury pubkey)
+        const treasuryPubkey = new PublicKey(registryAccount.data.slice(8, 40));
+
+        // Split domain into name and extension
+        const domainName = domain; // e.g., "myname"
+        const extension = ext; // e.g., ".fizz"
+
+        // Build register_domain instruction data
+        // Discriminator: sha256("global:register_domain")[0..8]
+        const discriminator = Buffer.from([0xec, 0x07, 0xd0, 0x97, 0xad, 0x95, 0x49, 0x68]);
+        
+        // Serialize domain_name string (4-byte length + UTF-8 bytes)
+        const domainNameBytes = Buffer.from(domainName);
+        const domainNameLength = Buffer.alloc(4);
+        domainNameLength.writeUInt32LE(domainNameBytes.length, 0);
+        
+        // Serialize extension string (4-byte length + UTF-8 bytes)
+        const extensionBytes = Buffer.from(extension);
+        const extensionLength = Buffer.alloc(4);
+        extensionLength.writeUInt32LE(extensionBytes.length, 0);
         
         const instructionData = Buffer.concat([
           discriminator,
-          domainLength,
-          domainBytes
+          domainNameLength,
+          domainNameBytes,
+          extensionLength,
+          extensionBytes
         ]);
 
-        const registerIx = {
+        const registerIx = new TransactionInstruction({
           keys: [
-            { pubkey: registryPda, isSigner: false, isWritable: false },
+            { pubkey: registryPda, isSigner: false, isWritable: true }, // registry is mut
             { pubkey: domainPda, isSigner: false, isWritable: true },
-            { pubkey: solanaWallet.publicKey, isSigner: true, isWritable: true },
+            { pubkey: solanaWallet.publicKey, isSigner: true, isWritable: true }, // payer
+            { pubkey: treasuryPubkey, isSigner: false, isWritable: true }, // treasury receives payment
             { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
           ],
           programId,
           data: instructionData,
-        };
+        });
 
         const transaction = new Transaction().add(registerIx);
         transaction.feePayer = solanaWallet.publicKey;
