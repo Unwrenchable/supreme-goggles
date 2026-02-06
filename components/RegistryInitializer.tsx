@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getSolanaExplorerUrl } from '@/lib/solana';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getSolanaExplorerUrl, SOLANA_NETWORK } from '@/lib/solana';
 
 interface RegistryInitializerProps {
   onInitialized?: () => void;
@@ -11,12 +12,58 @@ interface RegistryInitializerProps {
 
 export default function RegistryInitializer({ onInitialized, onError }: RegistryInitializerProps) {
   const wallet = useWallet();
-  const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('needs-init');
+  const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('checking');
   const [errorMessage, setErrorMessage] = useState('');
   const [txSignature] = useState('');
 
   const programAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR';
   const explorerUrl = `https://explorer.solana.com/address/${programAddress}?cluster=devnet`;
+
+  // Check if registry is initialized
+  useEffect(() => {
+    async function checkRegistry() {
+      try {
+        const rpcUrl = SOLANA_NETWORK === 'mainnet-beta' 
+          ? 'https://api.mainnet-beta.solana.com'
+          : 'https://api.devnet.solana.com';
+        
+        const connection = new Connection(rpcUrl, 'confirmed');
+        const programId = new PublicKey(programAddress);
+        
+        // Derive the registry PDA
+        const [registryPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('registry')],
+          programId
+        );
+
+        // Check if the account exists
+        const accountInfo = await connection.getAccountInfo(registryPda);
+        
+        if (accountInfo && accountInfo.data.length > 0) {
+          setStatus('ready');
+          onInitialized?.();
+        } else {
+          setStatus('needs-init');
+        }
+      } catch (error) {
+        console.error('Error checking registry:', error);
+        setStatus('needs-init');
+      }
+    }
+
+    checkRegistry();
+  }, [programAddress, onInitialized]);
+
+  if (status === 'checking') {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+          <p className="text-gray-700">Checking registry status...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (status === 'ready') {
     return (
