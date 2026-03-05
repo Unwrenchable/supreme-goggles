@@ -335,7 +335,10 @@ function RegisterForm() {
                   </p>
                   {txHash && (
                     <a 
-                      href={`https://etherscan.io/tx/${txHash}`} 
+                      href={isSolana
+                        ? `https://explorer.solana.com/tx/${txHash}${SOLANA_NETWORK !== 'mainnet-beta' ? `?cluster=${SOLANA_NETWORK}` : ''}`
+                        : `https://etherscan.io/tx/${txHash}`
+                      }
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-emerald-400 text-xs underline hover:text-emerald-300"
