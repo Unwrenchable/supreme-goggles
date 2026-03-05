@@ -48,7 +48,7 @@ export default function DomainCard({ domain }: DomainCardProps) {
             {Object.entries(domain.records).slice(0, 2).map(([key, value]) => (
               <div key={key} className="text-xs bg-black/30 px-2 py-1 rounded">
                 <span className="text-purple-400">{key}:</span>{' '}
-                <span className="text-gray-300">{value.slice(0, 30)}...</span>
+                <span className="text-gray-300">{value.length > 30 ? `${value.slice(0, 30)}...` : value}</span>
               </div>
             ))}
           </div>
