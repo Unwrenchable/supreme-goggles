@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { getSolanaExplorerUrl, getSolanaNetwork } from '@/lib/solana';
+import { getSolanaNetwork } from '@/lib/solana';
 
 interface RegistryInitializerProps {
   onInitialized?: () => void;
@@ -11,11 +10,9 @@ interface RegistryInitializerProps {
 }
 
 export default function RegistryInitializer({ onInitialized, onError }: RegistryInitializerProps) {
-  const wallet = useWallet();
   const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('checking');
   const [errorMessage, setErrorMessage] = useState('');
-  const [txSignature] = useState('');
 
   const programAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR';
   const explorerUrl = `https://explorer.solana.com/address/${programAddress}?cluster=devnet`;
@@ -61,7 +58,10 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
     }
 
     checkRegistry();
-  }, [mounted, programAddress, onInitialized]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, programAddress]);
+  // NOTE: onInitialized is intentionally excluded from deps to prevent
+  // infinite re-renders when an inline arrow function is passed as prop.
 
   // Don't render anything until mounted (prevents hydration errors)
   if (!mounted) {
@@ -88,16 +88,6 @@ export default function RegistryInitializer({ onInitialized, onError }: Registry
           </svg>
           <div>
             <p className="text-green-800 font-medium">Registry is ready! ✓</p>
-            {txSignature && (
-              <a 
-                href={getSolanaExplorerUrl(txSignature)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-green-600 hover:underline"
-              >
-                View initialization transaction →
-              </a>
-            )}
           </div>
         </div>
       </div>

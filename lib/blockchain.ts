@@ -95,6 +95,14 @@ export const registerDomainOnChain = async (
     // Wait for transaction confirmation
     const receipt = await tx.wait();
     
+    // receipt can be null if the transaction was not confirmed (e.g., replaced or dropped)
+    if (!receipt) {
+      return {
+        success: false,
+        error: 'Transaction was not confirmed. It may have been dropped or replaced.',
+      };
+    }
+    
     return {
       success: true,
       transactionHash: receipt.hash,
@@ -225,6 +233,14 @@ export const updateDomainRecordsOnChain = async (
     
     const tx = await contract.setRecord(fullDomain, recordType, value);
     const receipt = await tx.wait();
+    
+    // receipt can be null if the transaction was not confirmed
+    if (!receipt) {
+      return {
+        success: false,
+        error: 'Transaction was not confirmed. It may have been dropped or replaced.',
+      };
+    }
     
     return {
       success: true,

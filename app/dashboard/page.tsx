@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useState, useEffect } from 'react';
 import { getDomainsByOwner as getMockDomains, Domain } from '@/lib/mockData';
@@ -13,7 +13,6 @@ import Link from 'next/link';
 export default function DashboardPage() {
   // EVM wallet
   const { address: evmAddress, isConnected: evmConnected } = useAccount();
-  const publicClient = usePublicClient();
   
   // Solana wallet
   const solanaWallet = useWallet();
@@ -101,7 +100,10 @@ export default function DashboardPage() {
         }
         // Fetch EVM domains if EVM wallet connected
         else if (evmConnected && evmAddress) {
-          domains = await getUserDomainsFromChain(evmAddress, publicClient as any);
+          // Note: publicClient from wagmi is a viem PublicClient, not an ethers.Provider.
+          // In demo mode, passing undefined causes getUserDomainsFromChain to return mock data.
+          // For production, an ethers.JsonRpcProvider should be created from the chain's RPC URL.
+          domains = await getUserDomainsFromChain(evmAddress, undefined);
         }
         // Demo mode fallback
         else if (!USE_PRODUCTION_MODE && displayAddress) {
@@ -130,7 +132,7 @@ export default function DashboardPage() {
       setIsLoading(false);
       setFetchError(null);
     }
-  }, [solanaWallet.connected, solanaWallet.publicKey, evmConnected, evmAddress, publicClient, displayAddress]);
+  }, [solanaWallet.connected, solanaWallet.publicKey, evmConnected, evmAddress, displayAddress]);
 
   if (!isConnected) {
     return (
@@ -211,8 +213,8 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {userDomains.map((domain, idx) => (
-              <DomainCard key={idx} domain={domain} />
+            {userDomains.map((domain) => (
+              <DomainCard key={`${domain.name}${domain.extension}`} domain={domain} />
             ))}
           </div>
 

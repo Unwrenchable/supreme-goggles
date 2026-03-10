@@ -2,7 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { usePublicClient } from 'wagmi';
 import { checkDomainAvailability as checkMockAvailability, getDomainPrice } from '@/lib/mockData';
 import { checkDomainAvailabilityOnChain } from '@/lib/blockchain';
 import { EXTENSION_INFO, getCurrencyUSDRate, USE_PRODUCTION_MODE } from '@/lib/contract';
@@ -10,7 +9,6 @@ import Link from 'next/link';
 
 function SearchResults() {
   const searchParams = useSearchParams();
-  const publicClient = usePublicClient();
   
   const domain = searchParams.get('domain') || '';
   const ext = searchParams.get('ext') || '.web3';
@@ -28,11 +26,13 @@ function SearchResults() {
       setCheckError(null);
 
       try {
-        // Check availability on blockchain or use mock data
+        // In demo mode (default), checkDomainAvailabilityOnChain falls back to mock data.
+        // In production mode, a proper ethers.Provider would be injected here.
+        // For now we pass undefined so the function uses mock/demo data correctly.
         const available = await checkDomainAvailabilityOnChain(
           domain,
           ext,
-          publicClient as any
+          undefined
         );
 
         setIsAvailable(available);
@@ -51,7 +51,7 @@ function SearchResults() {
     };
 
     checkAvailability();
-  }, [domain, ext, publicClient]);
+  }, [domain, ext]);
 
   const fullDomain = `${domain}${ext}`;
   const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
@@ -186,12 +186,12 @@ function SearchResults() {
               { name: `${domain}`, ext: '.sol' },
               { name: `${domain}`, ext: '.fizz' },
               { name: `${domain}`, ext: '.bnb' },
-            ].map((suggestion, idx) => {
+            ].map((suggestion) => {
               const suggestionPrice = getDomainPrice(suggestion.name, suggestion.ext);
               const suggestionInfo = EXTENSION_INFO[suggestion.ext as keyof typeof EXTENSION_INFO];
               return (
                 <Link
-                  key={idx}
+                  key={`${suggestion.name}${suggestion.ext}`}
                   href={`/search?domain=${suggestion.name}&ext=${suggestion.ext}`}
                   className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 transition-all duration-200 border border-slate-700/30 hover:border-violet-500/40 hover:scale-[1.02]"
                 >

@@ -13,22 +13,33 @@ const nextConfig: NextConfig = {
     unoptimized: false,
   },
   
-  // Turbopack configuration (Next.js 16+)
-  turbopack: {
-    // Empty config to acknowledge Turbopack usage
-  },
+  // Turbopack is enabled by default in Next.js 16.
+  // The empty config acknowledges Turbopack usage while still keeping
+  // the webpack config as a fallback for older/custom build tooling.
+  // Turbopack automatically handles Node.js built-in fallbacks for
+  // browser code, so no extra polyfill config is needed here.
+  turbopack: {},
   
-  // Configure webpack for Web3 packages (fallback for webpack builds)
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
+  // Configure webpack for Web3 packages (used when --webpack flag is passed)
+  webpack: (config, { isServer }) => {
+    // Polyfill / disable Node.js built-ins that are not available in the browser
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        path: false,
+        os: false,
+        http: false,
+        https: false,
+        zlib: false,
+      };
+    }
     
-    // Externalize node modules that cause issues in browser
-    // Ensure externals is an array before pushing
+    // Externalize server-only packages that cause issues when bundled
     if (!config.externals) {
       config.externals = [];
     }
@@ -56,7 +67,7 @@ const nextConfig: NextConfig = {
   
   // Optimize for Vercel deployment
   experimental: {
-    // Enable optimized package imports
+    // Enable optimized package imports for better tree-shaking
     optimizePackageImports: ['@solana/web3.js', 'ethers', 'viem'],
   },
 };

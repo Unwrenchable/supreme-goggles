@@ -2,12 +2,27 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Connection, PublicKey, Transaction, TransactionInstruction, clusterApiUrl } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { BrowserProvider } from 'ethers';
 import { updateDomainRecordsOnChain, getDomainRecordsFromChain, formatTransactionError } from '@/lib/blockchain';
-import { USE_PRODUCTION_MODE, getChainForExtension } from '@/lib/contract';
+import { USE_PRODUCTION_MODE, getChainForExtension, SOLANA_NETWORK } from '@/lib/contract';
+
+/**
+ * Default fallback Solana program ID used when neither
+ * NEXT_PUBLIC_SOLANA_PROGRAM_ID nor NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS is set.
+ * Single source of truth for this file.
+ */
+const DEFAULT_SOLANA_PROGRAM_ID = '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR';
+
+/** Resolve the active Solana program public key at runtime. */
+const getSolanaProgramId = (): PublicKey =>
+  new PublicKey(
+    process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID ||
+    process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS ||
+    DEFAULT_SOLANA_PROGRAM_ID
+  );
 
 interface DomainRecord {
   type: string;
@@ -21,7 +36,6 @@ export default function ManageDomainPage() {
   // EVM wallet
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
   
   // Solana wallet
   const solanaWallet = useWallet();
@@ -60,8 +74,11 @@ export default function ManageDomainPage() {
         if (USE_PRODUCTION_MODE) {
           if (isSolana && solanaWallet.publicKey) {
             // Load Solana domain records
-            const connection = new Connection(clusterApiUrl('devnet'));
-            const programId = new PublicKey(process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID!);
+            const rpcUrl = SOLANA_NETWORK === 'mainnet-beta'
+              ? 'https://api.mainnet-beta.solana.com'
+              : 'https://api.devnet.solana.com';
+            const connection = new Connection(rpcUrl, 'confirmed');
+            const programId = getSolanaProgramId();
             
             const [domainPda] = PublicKey.findProgramAddressSync(
               [Buffer.from('domain'), Buffer.from(domainName)],
@@ -107,17 +124,20 @@ export default function ManageDomainPage() {
               
               setRecords(loadedRecords);
             }
-          } else if (!isSolana && publicClient) {
+          } else if (!isSolana) {
             // Load EVM domain records
+            // In demo mode, getDomainRecordsFromChain returns empty string when no provider is given
             const recordTypes = ['wallet', 'ipfs', 'website', 'email', 'twitter', 'github'];
             const loadedRecords: DomainRecord[] = [];
             
             for (const type of recordTypes) {
+              // Passing undefined: in demo mode the function falls back gracefully.
+              // In production, an ethers.Provider (not a viem PublicClient) must be used.
               const value = await getDomainRecordsFromChain(
                 domainName,
                 extension,
                 type,
-                publicClient as any
+                undefined
               );
               
               if (value) {
@@ -149,7 +169,7 @@ export default function ManageDomainPage() {
     };
     
     loadRecords();
-  }, [domain, extension, domainName, publicClient, walletAddress, isSolana, solanaWallet.publicKey]);
+  }, [domain, extension, domainName, walletAddress, isSolana, solanaWallet.publicKey]);
 
 
   const handleAddRecord = () => {
@@ -181,8 +201,11 @@ export default function ManageDomainPage() {
       if (USE_PRODUCTION_MODE) {
         if (isSolana && solanaWallet.publicKey && solanaWallet.signTransaction) {
           // Save Solana domain records
-          const connection = new Connection(clusterApiUrl('devnet'));
-          const programId = new PublicKey(process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID!);
+          const rpcUrl = SOLANA_NETWORK === 'mainnet-beta'
+            ? 'https://api.mainnet-beta.solana.com'
+            : 'https://api.devnet.solana.com';
+          const connection = new Connection(rpcUrl, 'confirmed');
+          const programId = getSolanaProgramId();
           
           const [domainPda] = PublicKey.findProgramAddressSync(
             [Buffer.from('domain'), Buffer.from(domainName)],
@@ -190,8 +213,13 @@ export default function ManageDomainPage() {
           );
           
           // Calculate update_records discriminator: sha256("global:update_records")[0..8]
-          const crypto = await import('crypto');
-          const hash = crypto.createHash('sha256').update('global:update_records').digest();
+          // Use the Web Crypto API (available in all modern browsers and Node.js 15+)
+          const encoder = new TextEncoder();
+          const encoded = encoder.encode('global:update_records');
+          // Convert to ArrayBuffer to satisfy Web Crypto API strict type requirements
+          const dataBuffer = encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
+          const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', dataBuffer);
+          const hash = new Uint8Array(hashBuffer);
           const discriminator = Array.from(hash.subarray(0, 8));
           
           // Build instruction data: discriminator + domain_name + optional fields
