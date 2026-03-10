@@ -1,54 +1,35 @@
-'use client';
-
+import type { Metadata } from 'next';
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-import { config } from '@/lib/wagmi';
-import { SolanaWalletProvider } from '@/components/SolanaWalletProvider';
+import Providers from '@/components/Providers';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useState } from 'react';
+
+export const metadata: Metadata = {
+  title: 'AtomicFizzCaps Universal Naming Service',
+  description:
+    'Register Web3 domains with lifetime ownership across Solana, Ethereum, and 15+ blockchains. Pay once, own forever.',
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [queryClient] = useState(() => new QueryClient());
-
   return (
     <html lang="en">
       <body
         className="antialiased bg-gradient-to-br from-slate-900 via-purple-950/30 to-slate-900 min-h-screen font-sans"
       >
-        <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider 
-              modalSize="compact"
-              theme={darkTheme({
-                accentColor: '#7c3aed',
-                accentColorForeground: 'white',
-                borderRadius: 'large',
-                fontStack: 'system',
-                overlayBlur: 'small',
-              })}
-              showRecentTransactions={true}
-              coolMode={true}
-            >
-              <SolanaWalletProvider>
-                <div className="min-h-screen flex flex-col">
-                  <Navbar />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                  <Footer />
-                </div>
-              </SolanaWalletProvider>
-            </RainbowKitProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );
