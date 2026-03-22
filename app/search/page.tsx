@@ -179,7 +179,8 @@ function SearchResults() {
 
         {/* Alternative Suggestions */}
         <div className="bg-slate-900/30 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-8">
-          <h3 className="text-xl font-bold text-white mb-6">Similar Available Domains</h3>
+          <h3 className="text-xl font-bold text-white mb-2">Try Similar Domains</h3>
+          <p className="text-slate-400 text-sm mb-6">Explore the same name on other chains — click to check live availability.</p>
           <div className="grid md:grid-cols-2 gap-4">
             {[
               { name: `${domain}`, ext: '.eth' },
@@ -201,7 +202,7 @@ function SearchResults() {
                       {suggestionPrice.price.toFixed(3)} {suggestionPrice.currencySymbol} • Lifetime • {suggestionInfo?.chain || 'Multi-Chain'}
                     </p>
                   </div>
-                  <span className="text-emerald-400 text-sm font-medium px-3 py-1 bg-emerald-500/10 rounded-full">Available</span>
+                  <span className="text-violet-300 text-sm font-medium px-3 py-1 bg-violet-500/10 rounded-full">Check →</span>
                 </Link>
               );
             })}
