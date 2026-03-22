@@ -196,19 +196,24 @@ export const getUserDomainsFromChain = async (
 };
 
 /**
- * Update domain records on the blockchain
- * 
- * @param domainName - Full domain name
- * @param recordType - Type of record (e.g., 'wallet', 'ipfs', 'twitter')
- * @param value - Value to set
+ * Update domain records on the blockchain.
+ * Accepts all records at once and groups them into the correct contract calls:
+ *   - 'wallet'           → setWalletAddress(domain, wallet)
+ *   - 'ipfs'             → setIPFSHash(domain, ipfsHash)
+ *   - 'twitter'/'discord'→ setSocialRecords(domain, twitter, discord)
+ *   - 'email'/'website'  → setContactInfo(domain, email, website)
+ *   - 'avatar'           → setAvatar(domain, avatar)
+ *
+ * @param domainName - Domain name without extension (e.g., "myname")
+ * @param extension - Domain extension (e.g., ".fizz")
+ * @param records - Key/value map of record types to values
  * @param signer - Ethers signer from connected wallet
- * @returns Transaction result
+ * @returns Transaction result (hash from last transaction sent)
  */
 export const updateDomainRecordsOnChain = async (
   domainName: string,
   extension: string,
-  recordType: string,
-  value: string,
+  records: Record<string, string>,
   signer: ethers.Signer
 ): Promise<TransactionResult> => {
   try {
@@ -231,21 +236,74 @@ export const updateDomainRecordsOnChain = async (
     const contract = getDomainRegistryContract(signer, extension);
     const fullDomain = `${domainName}${extension}`;
     
-    const tx = await contract.setRecord(fullDomain, recordType, value);
-    const receipt = await tx.wait();
-    
-    // receipt can be null if the transaction was not confirmed
-    if (!receipt) {
-      return {
-        success: false,
-        error: 'Transaction was not confirmed. It may have been dropped or replaced.',
-      };
+    let lastHash: string | undefined;
+
+    // wallet address
+    if (records.wallet !== undefined) {
+      const tx = await contract.setWalletAddress(fullDomain, records.wallet);
+      const receipt = await tx.wait();
+      if (!receipt) {
+        return { success: false, error: 'Transaction was not confirmed (wallet record).' };
+      }
+      lastHash = receipt.hash;
     }
-    
+
+    // IPFS hash
+    if (records.ipfs !== undefined) {
+      const tx = await contract.setIPFSHash(fullDomain, records.ipfs);
+      const receipt = await tx.wait();
+      if (!receipt) {
+        return { success: false, error: 'Transaction was not confirmed (ipfs record).' };
+      }
+      lastHash = receipt.hash;
+    }
+
+    // Social records (twitter + discord grouped together to avoid overwriting)
+    if (records.twitter !== undefined || records.discord !== undefined) {
+      const tx = await contract.setSocialRecords(
+        fullDomain,
+        records.twitter ?? '',
+        records.discord ?? ''
+      );
+      const receipt = await tx.wait();
+      if (!receipt) {
+        return { success: false, error: 'Transaction was not confirmed (social records).' };
+      }
+      lastHash = receipt.hash;
+    }
+
+    // Contact info (email + website grouped together to avoid overwriting)
+    if (records.email !== undefined || records.website !== undefined) {
+      const tx = await contract.setContactInfo(
+        fullDomain,
+        records.email ?? '',
+        records.website ?? ''
+      );
+      const receipt = await tx.wait();
+      if (!receipt) {
+        return { success: false, error: 'Transaction was not confirmed (contact records).' };
+      }
+      lastHash = receipt.hash;
+    }
+
+    // Avatar
+    if (records.avatar !== undefined) {
+      const tx = await contract.setAvatar(fullDomain, records.avatar);
+      const receipt = await tx.wait();
+      if (!receipt) {
+        return { success: false, error: 'Transaction was not confirmed (avatar record).' };
+      }
+      lastHash = receipt.hash;
+    }
+
+    if (!lastHash) {
+      return { success: false, error: 'No records were provided to update.' };
+    }
+
     return {
       success: true,
-      transactionHash: receipt.hash,
-      blockExplorerUrl: getBlockExplorerUrl(receipt.hash, chain),
+      transactionHash: lastHash,
+      blockExplorerUrl: getBlockExplorerUrl(lastHash, chain),
     };
   } catch (error: any) {
     console.error('Record update failed:', error);
@@ -257,7 +315,30 @@ export const updateDomainRecordsOnChain = async (
 };
 
 /**
- * Get domain records from the blockchain
+ * Map a generic record type string to the corresponding field in the
+ * DomainRecords struct returned by getDomainRecords().
+ */
+const recordTypeToStructField = (recordType: string): keyof {
+  walletAddress: string; ipfsHash: string; twitter: string;
+  discord: string; email: string; website: string; avatar: string;
+} | null => {
+  const fieldMap: Record<string, 'walletAddress' | 'ipfsHash' | 'twitter' | 'discord' | 'email' | 'website' | 'avatar'> = {
+    wallet: 'walletAddress',
+    wallet_address: 'walletAddress',
+    ipfs: 'ipfsHash',
+    ipfs_hash: 'ipfsHash',
+    twitter: 'twitter',
+    discord: 'discord',
+    email: 'email',
+    website: 'website',
+    avatar: 'avatar',
+  };
+  return fieldMap[recordType] ?? null;
+};
+
+/**
+ * Get a single domain record from the blockchain by fetching the full
+ * DomainRecords struct and extracting the requested field.
  */
 export const getDomainRecordsFromChain = async (
   domainName: string,
@@ -279,8 +360,10 @@ export const getDomainRecordsFromChain = async (
     const contract = getDomainRegistryContract(provider, extension);
     const fullDomain = `${domainName}${extension}`;
     
-    const value = await contract.getRecord(fullDomain, recordType);
-    return value;
+    const allRecords = await contract.getDomainRecords(fullDomain);
+    const field = recordTypeToStructField(recordType);
+    if (!field) return '';
+    return (allRecords[field] as string) ?? '';
   } catch (error) {
     console.error('Failed to get record from chain:', error);
     return '';

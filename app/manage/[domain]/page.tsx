@@ -280,26 +280,26 @@ export default function ManageDomainPage() {
           setSaveStatus('success');
           setSaveMessage('Records updated successfully on Solana!');
         } else if (!isSolana && walletClient) {
-          // Save EVM domain records
+          // Save EVM domain records – pass all records at once so grouped
+          // contract functions (setSocialRecords, setContactInfo) receive both
+          // fields in a single call and don't overwrite each other.
           const provider = new BrowserProvider(walletClient as any);
           const signer = await provider.getSigner();
           
-          for (const record of records) {
-            const result = await updateDomainRecordsOnChain(
-              domainName,
-              extension,
-              record.type,
-              record.value,
-              signer
-            );
-            
-            if (!result.success) {
-              throw new Error(result.error || 'Failed to update record');
-            }
-            
-            if (result.transactionHash) {
-              setTxHash(result.transactionHash);
-            }
+          const recordsMap = Object.fromEntries(records.map(r => [r.type, r.value]));
+          const result = await updateDomainRecordsOnChain(
+            domainName,
+            extension,
+            recordsMap,
+            signer
+          );
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Failed to update records');
+          }
+          
+          if (result.transactionHash) {
+            setTxHash(result.transactionHash);
           }
           
           setSaveStatus('success');
