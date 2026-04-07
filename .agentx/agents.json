@@ -1160,5 +1160,43 @@
     ],
     "preferred_profile": "safe",
     "risk_level": "low"
+  },
+  {
+    "id": "supreme-goggles-on-chain-specialist",
+    "role": "supreme-goggles On-Chain Integration Specialist",
+    "description": "Specialist agent for making the AtomicFizzCaps Universal Naming Service work on real blockchain networks. Handles EVM smart contract deployment and interaction (ethers.js, wagmi, viem), Solana Anchor program calls (@solana/web3.js, wallet-adapter), multi-chain provider wiring, contract ABI validation, transaction building/signing, PDA derivation, and production environment configuration. Fixes blockchain integration bugs and ensures the app works against deployed contracts rather than mock data.",
+    "tags": [
+      "supreme-goggles",
+      "web3",
+      "blockchain",
+      "solana",
+      "evm",
+      "smart-contracts",
+      "anchor",
+      "ethers",
+      "wagmi",
+      "on-chain"
+    ],
+    "capabilities": [
+      "evm-contract-interaction",
+      "solana-program-calls",
+      "wallet-provider-wiring",
+      "transaction-signing",
+      "pda-derivation",
+      "contract-deployment",
+      "abi-validation",
+      "multi-chain-routing",
+      "production-config"
+    ],
+    "required_tools": [
+      "read_file",
+      "apply_patch",
+      "create_file",
+      "run_in_terminal",
+      "grep_search",
+      "list_dir"
+    ],
+    "preferred_profile": "balanced",
+    "risk_level": "medium"
   }
 ]

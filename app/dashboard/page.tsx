@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useState, useEffect } from 'react';
 import { getDomainsByOwner as getMockDomains, Domain } from '@/lib/mockData';
@@ -13,6 +13,7 @@ import Link from 'next/link';
 export default function DashboardPage() {
   // EVM wallet
   const { address: evmAddress, isConnected: evmConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
   
   // Solana wallet
   const solanaWallet = useWallet();
@@ -100,10 +101,33 @@ export default function DashboardPage() {
         }
         // Fetch EVM domains if EVM wallet connected
         else if (evmConnected && evmAddress) {
-          // Note: publicClient from wagmi is a viem PublicClient, not an ethers.Provider.
-          // In demo mode, passing undefined causes getUserDomainsFromChain to return mock data.
-          // For production, an ethers.JsonRpcProvider should be created from the chain's RPC URL.
-          domains = await getUserDomainsFromChain(evmAddress, undefined);
+          // In production mode, build a JsonRpcProvider matched to the user's chain.
+          // This avoids querying the wrong network when the wallet switches chains.
+          let evmProvider: import('ethers').Provider | undefined;
+          if (USE_PRODUCTION_MODE) {
+            try {
+              const { ethers } = await import('ethers');
+              // Public RPC fallbacks per chain — prefer env vars when set
+              const rpcByChainId: Record<number, string> = {
+                1:        process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL  || 'https://eth.llamarpc.com',
+                10:       process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL  || 'https://mainnet.optimism.io',
+                56:       process.env.NEXT_PUBLIC_BSC_RPC_URL       || 'https://bsc-dataseed.binance.org',
+                137:      process.env.NEXT_PUBLIC_POLYGON_RPC_URL   || 'https://polygon-rpc.com',
+                250:      process.env.NEXT_PUBLIC_FANTOM_RPC_URL    || 'https://rpcapi.fantom.network',
+                8453:     process.env.NEXT_PUBLIC_BASE_RPC_URL      || 'https://mainnet.base.org',
+                42161:    process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL  || 'https://arb1.arbitrum.io/rpc',
+                43114:    process.env.NEXT_PUBLIC_AVALANCHE_RPC_URL || 'https://api.avax.network/ext/bc/C/rpc',
+                11155111: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL   || 'https://rpc.sepolia.org',
+              };
+              // walletClient.chain.id carries the currently connected chain
+              const chainId = (walletClient as { chain?: { id?: number } } | null)?.chain?.id ?? 1;
+              const rpcUrl = rpcByChainId[chainId] ?? rpcByChainId[1];
+              evmProvider = new ethers.JsonRpcProvider(rpcUrl);
+            } catch {
+              // provider creation failed; getUserDomainsFromChain will fall back to mock
+            }
+          }
+          domains = await getUserDomainsFromChain(evmAddress, evmProvider);
         }
         // Demo mode fallback
         else if (!USE_PRODUCTION_MODE && displayAddress) {
@@ -132,7 +156,7 @@ export default function DashboardPage() {
       setIsLoading(false);
       setFetchError(null);
     }
-  }, [solanaWallet.connected, solanaWallet.publicKey, evmConnected, evmAddress, displayAddress]);
+  }, [solanaWallet.connected, solanaWallet.publicKey, evmConnected, evmAddress, displayAddress, walletClient]);
 
   if (!isConnected) {
     return (

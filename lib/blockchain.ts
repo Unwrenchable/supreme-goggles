@@ -3,7 +3,8 @@ import {
   getDomainRegistryContract, 
   isProductionConfigured,
   getChainForExtension,
-  USE_PRODUCTION_MODE
+  USE_PRODUCTION_MODE,
+  CONTRACT_ADDRESSES
 } from './contract';
 import { 
   checkDomainAvailability as checkMockAvailability, 
@@ -134,9 +135,31 @@ export const checkDomainAvailabilityOnChain = async (
 
     const chain = getChainForExtension(extension);
     
-    // For Solana, use mock data for now
+    // For Solana, derive the domain PDA and check if the account exists on-chain.
+    // If the account info is null the domain has never been registered (available).
     if (chain === 'solana') {
-      return checkMockAvailability(domainName, extension);
+      try {
+        const { Connection, PublicKey } = await import('@solana/web3.js');
+        const { getSolanaEndpoint } = await import('./solana');
+        const programAddress = CONTRACT_ADDRESSES.solana;
+        if (!programAddress) {
+          console.warn(
+            'checkDomainAvailabilityOnChain: NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS is not configured. Falling back to mock data.'
+          );
+          return checkMockAvailability(domainName, extension);
+        }
+        const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+        const programId = new PublicKey(programAddress);
+        // Domain PDA uses only the base domain name (without extension) as seed
+        const [domainPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('domain'), Buffer.from(domainName)],
+          programId
+        );
+        const accountInfo = await connection.getAccountInfo(domainPda);
+        return accountInfo === null; // null → not registered → available
+      } catch {
+        return checkMockAvailability(domainName, extension);
+      }
     }
 
     const contract = getDomainRegistryContract(provider, extension);
