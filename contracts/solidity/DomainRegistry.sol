@@ -315,6 +315,17 @@ contract DomainRegistry {
         address oldOwner = domains[domainName].owner;
         domains[domainName].owner = newOwner;
         
+        // Remove from old owner's list
+        string[] storage oldOwnerDomains = userDomains[oldOwner];
+        uint256 len = oldOwnerDomains.length;
+        for (uint256 i = 0; i < len; i++) {
+            if (keccak256(bytes(oldOwnerDomains[i])) == keccak256(bytes(domainName))) {
+                oldOwnerDomains[i] = oldOwnerDomains[len - 1];
+                oldOwnerDomains.pop();
+                break;
+            }
+        }
+
         // Add to new owner's list
         userDomains[newOwner].push(domainName);
         
