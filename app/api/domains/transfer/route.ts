@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
     }
     const extension = domain.slice(dotIndex);
 
+    // Helper validators defined locally for this handler
     const isEvmAddress = (addr: string) => /^0x[0-9a-fA-F]{40}$/.test(addr);
     const isSolanaAddress = (addr: string) => /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr);
 
@@ -61,8 +62,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Solana addresses are case-sensitive base58 strings — compare directly
-    if (fromOwner === toOwner || fromOwner.toLowerCase() === toOwner.toLowerCase()) {
+    // Determine address types and compare accordingly.
+    // Both must be of the same type for a valid transfer; the chain-validation
+    // block below will reject mixed-type pairs before any transaction occurs.
+    // - EVM addresses (0x hex) are case-insensitive (checksum vs lowercase).
+    // - Solana addresses (base58) are case-sensitive.
+    // - Mixed-type pairs (one EVM, one Solana) can never be equal, but we
+    //   still reject them explicitly to surface a clear error message.
+    const bothEvm = isEvmAddress(fromOwner) && isEvmAddress(toOwner);
+    const bothSolana = isSolanaAddress(fromOwner) && isSolanaAddress(toOwner);
+    const sameAddress = bothEvm
+      ? fromOwner.toLowerCase() === toOwner.toLowerCase()
+      : bothSolana
+        ? fromOwner === toOwner
+        : false; // mixed types — chain validation below will reject these
+    if (sameAddress) {
       return NextResponse.json(
         { error: 'fromOwner and toOwner must be different addresses' },
         { status: 400 }

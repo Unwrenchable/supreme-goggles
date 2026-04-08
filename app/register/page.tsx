@@ -8,6 +8,7 @@ import { BrowserProvider } from 'ethers';
 import { getDomainPrice } from '@/lib/mockData';
 import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE, getChainForExtension, SOLANA_NETWORK } from '@/lib/contract';
 import { registerDomainOnChain, formatTransactionError } from '@/lib/blockchain';
+import { getSolanaEndpoint } from '@/lib/solana';
 import WalletQRInfo from '@/components/WalletQRInfo';
 import RegistryInitializer from '@/components/RegistryInitializer';
 
@@ -84,12 +85,7 @@ function RegisterForm() {
 
         const { Connection, PublicKey, Transaction, SystemProgram, TransactionInstruction } = await import('@solana/web3.js');
         
-        const network = SOLANA_NETWORK || 'devnet';
-        const rpcUrl = network === 'mainnet-beta'
-          ? 'https://api.mainnet-beta.solana.com'
-          : 'https://api.devnet.solana.com';
-        
-        const connection = new Connection(rpcUrl, 'confirmed');
+        const connection = new Connection(getSolanaEndpoint(), 'confirmed');
         const programId = new PublicKey(process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR');
         
         // Derive PDAs
