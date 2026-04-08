@@ -38,12 +38,8 @@ export default function DashboardPage() {
         // Fetch Solana domains if Solana wallet connected
         if (solanaWallet.connected && solanaWallet.publicKey && USE_PRODUCTION_MODE) {
           const { Connection, PublicKey } = await import('@solana/web3.js');
-          const connection = new Connection(
-            process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'mainnet-beta'
-              ? 'https://api.mainnet-beta.solana.com'
-              : 'https://api.devnet.solana.com',
-            'confirmed'
-          );
+          const { getSolanaEndpoint } = await import('@/lib/solana');
+          const connection = new Connection(getSolanaEndpoint(), 'confirmed');
           
           const programId = new PublicKey(
             process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || 

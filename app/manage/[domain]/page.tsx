@@ -7,7 +7,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { BrowserProvider } from 'ethers';
 import { updateDomainRecordsOnChain, getDomainRecordsFromChain, formatTransactionError } from '@/lib/blockchain';
-import { USE_PRODUCTION_MODE, getChainForExtension, SOLANA_NETWORK } from '@/lib/contract';
+import { USE_PRODUCTION_MODE, getChainForExtension } from '@/lib/contract';
+import { getSolanaEndpoint } from '@/lib/solana';
 
 /**
  * Default fallback Solana program ID used when neither
@@ -74,10 +75,7 @@ export default function ManageDomainPage() {
         if (USE_PRODUCTION_MODE) {
           if (isSolana && solanaWallet.publicKey) {
             // Load Solana domain records
-            const rpcUrl = SOLANA_NETWORK === 'mainnet-beta'
-              ? 'https://api.mainnet-beta.solana.com'
-              : 'https://api.devnet.solana.com';
-            const connection = new Connection(rpcUrl, 'confirmed');
+            const connection = new Connection(getSolanaEndpoint(), 'confirmed');
             const programId = getSolanaProgramId();
             
             const [domainPda] = PublicKey.findProgramAddressSync(
@@ -201,10 +199,7 @@ export default function ManageDomainPage() {
       if (USE_PRODUCTION_MODE) {
         if (isSolana && solanaWallet.publicKey && solanaWallet.signTransaction) {
           // Save Solana domain records
-          const rpcUrl = SOLANA_NETWORK === 'mainnet-beta'
-            ? 'https://api.mainnet-beta.solana.com'
-            : 'https://api.devnet.solana.com';
-          const connection = new Connection(rpcUrl, 'confirmed');
+          const connection = new Connection(getSolanaEndpoint(), 'confirmed');
           const programId = getSolanaProgramId();
           
           const [domainPda] = PublicKey.findProgramAddressSync(
