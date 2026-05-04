@@ -1,0 +1,168 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getSolanaNetwork } from '@/lib/solana';
+
+interface RegistryInitializerProps {
+  onInitialized?: () => void;
+  onError?: (error: string) => void;
+}
+
+export default function RegistryInitializer({ onInitialized, onError }: RegistryInitializerProps) {
+  const [mounted, setMounted] = useState(false);
+  const [status, setStatus] = useState<'checking' | 'ready' | 'needs-init' | 'initializing' | 'error'>('checking');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const programAddress = process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR';
+  const explorerUrl = `https://explorer.solana.com/address/${programAddress}?cluster=devnet`;
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Check if registry is initialized
+  useEffect(() => {
+    if (!mounted) return;
+
+    async function checkRegistry() {
+      try {
+        const network = getSolanaNetwork();
+        const rpcUrl = network === 'mainnet-beta' 
+          ? 'https://api.mainnet-beta.solana.com'
+          : 'https://api.devnet.solana.com';
+        
+        const connection = new Connection(rpcUrl, 'confirmed');
+        const programId = new PublicKey(programAddress);
+        
+        // Derive the registry PDA
+        const [registryPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('registry')],
+          programId
+        );
+
+        // Check if the account exists
+        const accountInfo = await connection.getAccountInfo(registryPda);
+        
+        if (accountInfo && accountInfo.data.length > 0) {
+          setStatus('ready');
+          onInitialized?.();
+        } else {
+          setStatus('needs-init');
+        }
+      } catch (error) {
+        console.error('Error checking registry:', error);
+        setStatus('needs-init');
+      }
+    }
+
+    checkRegistry();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, programAddress]);
+  // NOTE: onInitialized is intentionally excluded from deps to prevent
+  // infinite re-renders when an inline arrow function is passed as prop.
+
+  // Don't render anything until mounted (prevents hydration errors)
+  if (!mounted) {
+    return null;
+  }
+
+  if (status === 'checking') {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+          <p className="text-gray-700">Checking registry status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'ready') {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center space-x-3">
+          <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <div>
+            <p className="text-green-800 font-medium">Registry is ready! ✓</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'needs-init') {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+        <div className="flex items-start space-x-3">
+          <svg className="w-6 h-6 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <h3 className="text-yellow-900 font-semibold mb-2">Registry Initialization Required</h3>
+            <p className="text-yellow-800 text-sm mb-4">
+              The Solana domain registry needs to be initialized before domains can be registered. 
+              This is a one-time setup that configures the treasury address and registration fees.
+            </p>
+            <div className="space-y-3">
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              >
+                Initialize via Solana Explorer →
+              </a>
+              <p className="text-sm text-yellow-700">
+                Or run: <code className="bg-yellow-100 px-2 py-1 rounded">./initialize-registry.sh</code> from your terminal
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'initializing') {
+    return (
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <div>
+            <p className="text-blue-900 font-medium">Initializing registry...</p>
+            <p className="text-blue-700 text-sm">Please confirm the transaction in your wallet</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+        <div className="flex items-start space-x-3">
+          <svg className="w-6 h-6 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <h3 className="text-red-900 font-semibold mb-2">Initialization Failed</h3>
+            <p className="text-red-800 text-sm mb-4">{errorMessage}</p>
+            <a
+              href={explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            >
+              Try via Solana Explorer →
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}

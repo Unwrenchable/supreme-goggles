@@ -2,7 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { usePublicClient } from 'wagmi';
 import { checkDomainAvailability as checkMockAvailability, getDomainPrice } from '@/lib/mockData';
 import { checkDomainAvailabilityOnChain } from '@/lib/blockchain';
 import { EXTENSION_INFO, getCurrencyUSDRate, USE_PRODUCTION_MODE } from '@/lib/contract';
@@ -10,33 +9,38 @@ import Link from 'next/link';
 
 function SearchResults() {
   const searchParams = useSearchParams();
-  const publicClient = usePublicClient();
   
   const domain = searchParams.get('domain') || '';
   const ext = searchParams.get('ext') || '.web3';
   
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const [checkError, setCheckError] = useState<string | null>(null);
   const [priceInfo, setPriceInfo] = useState<{ price: number; currency: string; currencySymbol: string }>({ price: 0, currency: 'ETH', currencySymbol: 'ETH' });
 
   useEffect(() => {
     const checkAvailability = async () => {
       if (!domain) return;
-      
+
       setIsChecking(true);
-      
+      setCheckError(null);
+
       try {
-        // Check availability on blockchain or use mock data
+        // In demo mode (default), checkDomainAvailabilityOnChain falls back to mock data.
+        // In production mode, a proper ethers.Provider would be injected here.
+        // For now we pass undefined so the function uses mock/demo data correctly.
         const available = await checkDomainAvailabilityOnChain(
           domain,
           ext,
-          publicClient as any
+          undefined
         );
-        
+
         setIsAvailable(available);
         setPriceInfo(getDomainPrice(domain, ext));
       } catch (error) {
         console.error('Failed to check availability:', error);
+        // Set error state to inform user
+        setCheckError('Failed to check blockchain availability. Showing cached data.');
         // Fallback to mock data
         const available = checkMockAvailability(domain, ext);
         setIsAvailable(available);
@@ -45,9 +49,9 @@ function SearchResults() {
         setIsChecking(false);
       }
     };
-    
+
     checkAvailability();
-  }, [domain, ext, publicClient]);
+  }, [domain, ext]);
 
   const fullDomain = `${domain}${ext}`;
   const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
@@ -75,6 +79,20 @@ function SearchResults() {
                 <p className="text-amber-400 font-semibold mb-1">Demo Mode</p>
                 <p className="text-amber-300 text-sm">
                   Availability shown is simulated. Enable production mode to check real blockchain availability.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {checkError && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-red-400 text-xl">⚠️</span>
+              <div>
+                <p className="text-red-400 font-semibold mb-1">Availability Check Error</p>
+                <p className="text-red-300 text-sm">
+                  {checkError}
                 </p>
               </div>
             </div>
@@ -161,19 +179,20 @@ function SearchResults() {
 
         {/* Alternative Suggestions */}
         <div className="bg-slate-900/30 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-8">
-          <h3 className="text-xl font-bold text-white mb-6">Similar Available Domains</h3>
+          <h3 className="text-xl font-bold text-white mb-2">Try Similar Domains</h3>
+          <p className="text-slate-400 text-sm mb-6">Explore the same name on other chains — click to check live availability.</p>
           <div className="grid md:grid-cols-2 gap-4">
             {[
               { name: `${domain}`, ext: '.eth' },
               { name: `${domain}`, ext: '.sol' },
               { name: `${domain}`, ext: '.fizz' },
               { name: `${domain}`, ext: '.bnb' },
-            ].map((suggestion, idx) => {
+            ].map((suggestion) => {
               const suggestionPrice = getDomainPrice(suggestion.name, suggestion.ext);
               const suggestionInfo = EXTENSION_INFO[suggestion.ext as keyof typeof EXTENSION_INFO];
               return (
                 <Link
-                  key={idx}
+                  key={`${suggestion.name}${suggestion.ext}`}
                   href={`/search?domain=${suggestion.name}&ext=${suggestion.ext}`}
                   className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 transition-all duration-200 border border-slate-700/30 hover:border-violet-500/40 hover:scale-[1.02]"
                 >
@@ -183,7 +202,7 @@ function SearchResults() {
                       {suggestionPrice.price.toFixed(3)} {suggestionPrice.currencySymbol} • Lifetime • {suggestionInfo?.chain || 'Multi-Chain'}
                     </p>
                   </div>
-                  <span className="text-emerald-400 text-sm font-medium px-3 py-1 bg-emerald-500/10 rounded-full">Available</span>
+                  <span className="text-violet-300 text-sm font-medium px-3 py-1 bg-violet-500/10 rounded-full">Check →</span>
                 </Link>
               );
             })}

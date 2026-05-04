@@ -5,6 +5,9 @@ export interface Domain {
   registeredAt: number;
   isActive: boolean;
   records: Record<string, string>;
+  chain?: string; // Optional: 'Solana', 'Ethereum', 'Polygon', etc.
+  registrationDate?: string; // Optional ISO date string
+  expirationDate?: string; // Optional expiration or 'Lifetime'
 }
 
 export const mockDomains: Domain[] = [
@@ -22,7 +25,7 @@ export const mockDomains: Domain[] = [
   },
   {
     name: 'defi',
-    extension: '.atom',
+    extension: '.atomic',
     owner: '0x9876543210987654321098765432109876543210',
     registeredAt: Date.now() - 60 * 24 * 60 * 60 * 1000, // 60 days ago
     isActive: true,

@@ -3,26 +3,39 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, Suspense } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { BrowserProvider } from 'ethers';
 import { getDomainPrice } from '@/lib/mockData';
-import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE } from '@/lib/contract';
+import { EXTENSION_INFO, getCurrencyUSDRate, isProductionConfigured, USE_PRODUCTION_MODE, getChainForExtension, SOLANA_NETWORK } from '@/lib/contract';
 import { registerDomainOnChain, formatTransactionError } from '@/lib/blockchain';
+import { getSolanaEndpoint } from '@/lib/solana';
 import WalletQRInfo from '@/components/WalletQRInfo';
+import RegistryInitializer from '@/components/RegistryInitializer';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  
+  // EVM wallet
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
+  
+  // Solana wallet
+  const solanaWallet = useWallet();
   
   const domain = searchParams.get('domain') || '';
   const ext = searchParams.get('ext') || '.web3';
   const fullDomain = `${domain}${ext}`;
   
+  // Determine which chain this extension uses
+  const chainType = getChainForExtension(ext);
+  const isSolana = chainType === 'solana';
+  
   const [isRegistering, setIsRegistering] = useState(false);
   const [txHash, setTxHash] = useState<string>('');
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [registryReady, setRegistryReady] = useState(false);
 
   const priceInfo = getDomainPrice(domain, ext);
   const extensionInfo = EXTENSION_INFO[ext as keyof typeof EXTENSION_INFO] || {
@@ -37,10 +50,22 @@ function RegisterForm() {
   const usdValue = priceInfo.price * usdRate;
   
   const isProductionMode = USE_PRODUCTION_MODE && isProductionConfigured(ext);
+  
+  // Check which wallet is connected
+  const walletConnected = isSolana ? solanaWallet.connected : isConnected;
+  const walletAddress = isSolana 
+    ? solanaWallet.publicKey?.toBase58() 
+    : address;
 
   const handleRegister = async () => {
-    if (!isConnected) {
-      setErrorMessage('Please connect your wallet first');
+    if (!walletConnected) {
+      setErrorMessage(`Please connect your ${isSolana ? 'Phantom' : 'wallet'} first`);
+      return;
+    }
+
+    // For Solana, check if registry is ready
+    if (isSolana && isProductionMode && !registryReady) {
+      setErrorMessage('Registry not initialized. Please initialize first.');
       return;
     }
 
@@ -50,16 +75,116 @@ function RegisterForm() {
     setTxHash('');
     
     try {
-      // Production mode: Real blockchain transaction
-      if (isProductionMode && walletClient) {
+      // Solana registration (production mode)
+      if (isSolana && isProductionMode) {
+        if (!solanaWallet.publicKey || !solanaWallet.signTransaction) {
+          setErrorMessage('Wallet not properly connected');
+          setTxStatus('error');
+          return;
+        }
+
+        const { Connection, PublicKey, Transaction, SystemProgram, TransactionInstruction } = await import('@solana/web3.js');
+        
+        const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+        const programId = new PublicKey(process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR');
+        
+        // Derive PDAs
+        const [registryPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('registry')],
+          programId
+        );
+        
+        // Domain PDA uses only the domain_name (without extension) as seed
+        const [domainPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from('domain'), Buffer.from(domain)],
+          programId
+        );
+
+        // Check if domain already exists
+        const existingDomain = await connection.getAccountInfo(domainPda);
+        if (existingDomain) {
+          setErrorMessage(`Domain "${fullDomain}" is already registered. Please try a different name.`);
+          setTxStatus('error');
+          setIsRegistering(false);
+          return;
+        }
+
+        // Get registry account to fetch treasury address
+        const registryAccount = await connection.getAccountInfo(registryPda);
+        if (!registryAccount) {
+          throw new Error('Registry not initialized');
+        }
+        
+        // Parse treasury address from registry (skip 8-byte discriminator, then 32 bytes for treasury pubkey)
+        const treasuryPubkey = new PublicKey(registryAccount.data.slice(8, 40));
+
+        // Split domain into name and extension
+        const domainName = domain; // e.g., "myname"
+        const extension = ext; // e.g., ".fizz"
+
+        // Build register_domain instruction data
+        // Discriminator: sha256("global:register_domain")[0..8]
+        const discriminator = Buffer.from([0xec, 0x07, 0xd0, 0x97, 0xad, 0x95, 0x49, 0x68]);
+        
+        // Serialize domain_name string (4-byte length + UTF-8 bytes)
+        const domainNameBytes = Buffer.from(domainName);
+        const domainNameLength = Buffer.alloc(4);
+        domainNameLength.writeUInt32LE(domainNameBytes.length, 0);
+        
+        // Serialize extension string (4-byte length + UTF-8 bytes)
+        const extensionBytes = Buffer.from(extension);
+        const extensionLength = Buffer.alloc(4);
+        extensionLength.writeUInt32LE(extensionBytes.length, 0);
+        
+        const instructionData = Buffer.concat([
+          discriminator,
+          domainNameLength,
+          domainNameBytes,
+          extensionLength,
+          extensionBytes
+        ]);
+
+        const registerIx = new TransactionInstruction({
+          keys: [
+            { pubkey: registryPda, isSigner: false, isWritable: true }, // registry is mut
+            { pubkey: domainPda, isSigner: false, isWritable: true },
+            { pubkey: solanaWallet.publicKey, isSigner: true, isWritable: true }, // payer
+            { pubkey: treasuryPubkey, isSigner: false, isWritable: true }, // treasury receives payment
+            { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+          ],
+          programId,
+          data: instructionData,
+        });
+
+        const transaction = new Transaction().add(registerIx);
+        transaction.feePayer = solanaWallet.publicKey;
+        transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        // Sign and send
+        const signed = await solanaWallet.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        
+        // Wait for confirmation
+        await connection.confirmTransaction(signature, 'confirmed');
+        
+        setTxHash(signature);
+        setTxStatus('success');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 3000);
+      }
+      // EVM Production mode: Real blockchain transaction
+      else if (isProductionMode && walletClient && !isSolana) {
         // Convert walletClient to ethers provider
         // Note: wagmi's walletClient is compatible with EIP-1193 provider interface
         const provider = new BrowserProvider(walletClient as any);
         const signer = await provider.getSigner();
-        
-        // Convert price to BigInt (wei/smallest unit)
-        const paymentAmount = BigInt(Math.floor(priceInfo.price * 1e18));
-        
+
+        // Convert price to wei using parseEther to avoid floating-point precision loss
+        // parseEther handles the conversion properly without precision issues
+        const { parseEther } = await import('ethers');
+        const paymentAmount = parseEther(priceInfo.price.toString());
+
         const result = await registerDomainOnChain(
           fullDomain,
           ext,
@@ -92,7 +217,16 @@ function RegisterForm() {
     } catch (error: any) {
       console.error('Registration error:', error);
       setTxStatus('error');
-      setErrorMessage(formatTransactionError(error));
+      
+      // Handle specific Solana errors
+      const errorMsg = error?.message || error?.toString() || '';
+      if (errorMsg.includes('already in use') || errorMsg.includes('Account already exists')) {
+        setErrorMessage(`Domain "${fullDomain}" is already registered. Please try a different name.`);
+      } else if (errorMsg.includes('User rejected') || errorMsg.includes('User cancelled')) {
+        setErrorMessage('Transaction cancelled by user');
+      } else {
+        setErrorMessage(formatTransactionError(error));
+      }
     } finally {
       setIsRegistering(false);
     }
@@ -117,6 +251,14 @@ function RegisterForm() {
               </div>
             </div>
           </div>
+        )}
+        
+        {/* Solana Registry Initializer - only show for Solana domains in production */}
+        {isSolana && isProductionMode && (
+          <RegistryInitializer 
+            onInitialized={() => setRegistryReady(true)}
+            onError={(error) => setErrorMessage(error)}
+          />
         )}
         
         <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 mb-8 shadow-2xl">
@@ -189,7 +331,10 @@ function RegisterForm() {
                   </p>
                   {txHash && (
                     <a 
-                      href={`https://etherscan.io/tx/${txHash}`} 
+                      href={isSolana
+                        ? `https://explorer.solana.com/tx/${txHash}${SOLANA_NETWORK !== 'mainnet-beta' ? `?cluster=${SOLANA_NETWORK}` : ''}`
+                        : `https://etherscan.io/tx/${txHash}`
+                      }
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-emerald-400 text-xs underline hover:text-emerald-300"
@@ -214,30 +359,37 @@ function RegisterForm() {
             </div>
           )}
 
-          {!isConnected ? (
+          {!walletConnected ? (
             <>
               <WalletQRInfo />
               <div className="text-center py-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
-                <p className="text-amber-400 font-medium">Please connect your wallet to continue</p>
+                <p className="text-amber-400 font-medium">
+                  Please connect your {isSolana ? 'Phantom wallet (Solana)' : 'wallet'} to continue
+                </p>
               </div>
             </>
           ) : (
             <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 mb-6">
               <p className="text-violet-300 text-sm font-medium">
-                <strong>Connected:</strong> {address?.slice(0, 6)}...{address?.slice(-4)}
+                <strong>Connected:</strong> {walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}
               </p>
               <p className="text-indigo-300 text-xs mt-2 flex items-start gap-2">
                 <span>💡</span>
-                <span>Ensure your wallet is on {extensionInfo.chain} network to complete payment in {priceInfo.currencySymbol}</span>
+                <span>
+                  {isSolana 
+                    ? `Using Solana ${SOLANA_NETWORK} network` 
+                    : `Ensure your wallet is on ${extensionInfo.chain} network to complete payment in ${priceInfo.currencySymbol}`
+                  }
+                </span>
               </p>
             </div>
           )}
 
           <button
             onClick={handleRegister}
-            disabled={!isConnected || isRegistering || txStatus === 'success'}
+            disabled={!walletConnected || isRegistering || txStatus === 'success' || (isSolana && isProductionMode && !registryReady)}
             className={`w-full px-8 py-4 font-semibold text-base rounded-xl transition-all duration-200 shadow-lg ${
-              isConnected && !isRegistering && txStatus !== 'success'
+              walletConnected && !isRegistering && txStatus !== 'success' && (!isSolana || !isProductionMode || registryReady)
                 ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/50 hover:shadow-violet-500/70 hover:scale-[1.02]'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed'
             }`}

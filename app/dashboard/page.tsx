@@ -1,6 +1,7 @@
 'use client';
 
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useState, useEffect } from 'react';
 import { getDomainsByOwner as getMockDomains, Domain } from '@/lib/mockData';
 import { getUserDomainsFromChain } from '@/lib/blockchain';
@@ -10,42 +11,148 @@ import WalletQRInfo from '@/components/WalletQRInfo';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { address, isConnected } = useAccount();
-  const publicClient = usePublicClient();
+  // EVM wallet
+  const { address: evmAddress, isConnected: evmConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  
+  // Solana wallet
+  const solanaWallet = useWallet();
+  const solanaAddress = solanaWallet.publicKey?.toBase58();
   
   const [userDomains, setUserDomains] = useState<Domain[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // Determine which wallet is connected
+  const isConnected = evmConnected || solanaWallet.connected;
+  const displayAddress = solanaWallet.connected ? solanaAddress : evmAddress;
+
   useEffect(() => {
     const fetchDomains = async () => {
-      if (!address) {
-        setUserDomains([]);
-        setIsLoading(false);
-        return;
-      }
-      
       setIsLoading(true);
-      
+      setFetchError(null);
+
       try {
-        // Fetch domains from blockchain or mock data
-        const domains = await getUserDomainsFromChain(
-          address,
-          publicClient as any
-        );
-        
+        let domains: Domain[] = [];
+
+        // Fetch Solana domains if Solana wallet connected
+        if (solanaWallet.connected && solanaWallet.publicKey && USE_PRODUCTION_MODE) {
+          const { Connection, PublicKey } = await import('@solana/web3.js');
+          const { getSolanaEndpoint } = await import('@/lib/solana');
+          const connection = new Connection(getSolanaEndpoint(), 'confirmed');
+          
+          const programId = new PublicKey(
+            process.env.NEXT_PUBLIC_SOLANA_CONTRACT_ADDRESS || 
+            '6vyzvhsAbQxttvgvaouHuYrqhSAV8TLMoimkEQWwCyyR'
+          );
+
+          // Get all program accounts
+          const accounts = await connection.getProgramAccounts(programId, {
+            filters: [
+              {
+                memcmp: {
+                  offset: 8, // Skip 8-byte discriminator
+                  bytes: solanaWallet.publicKey.toBase58(),
+                },
+              },
+            ],
+          });
+
+          // Parse domain accounts
+          for (const { pubkey, account } of accounts) {
+            try {
+              const data = account.data;
+              if (data.length < 8) continue;
+
+              // Parse domain data (simplified - you may need to adjust based on your struct layout)
+              // Skip discriminator (8 bytes) + owner pubkey (32 bytes)
+              let offset = 40;
+              
+              // Read domain_name (4-byte length + string)
+              const nameLen = data.readUInt32LE(offset);
+              offset += 4;
+              const domainName = data.slice(offset, offset + nameLen).toString('utf-8');
+              offset += nameLen;
+              
+              // Read extension (4-byte length + string)
+              const extLen = data.readUInt32LE(offset);
+              offset += 4;
+              const extension = data.slice(offset, offset + extLen).toString('utf-8');
+              
+              domains.push({
+                name: domainName,
+                extension: extension,
+                owner: solanaWallet.publicKey.toBase58(),
+                registeredAt: Date.now(),
+                isActive: true,
+                records: {
+                  wallet: solanaWallet.publicKey.toBase58(),
+                },
+                chain: 'Solana',
+              });
+            } catch (parseError) {
+              console.error('Error parsing domain:', parseError);
+            }
+          }
+        }
+        // Fetch EVM domains if EVM wallet connected
+        else if (evmConnected && evmAddress) {
+          // In production mode, build a JsonRpcProvider matched to the user's chain.
+          // This avoids querying the wrong network when the wallet switches chains.
+          let evmProvider: import('ethers').Provider | undefined;
+          if (USE_PRODUCTION_MODE) {
+            try {
+              const { ethers } = await import('ethers');
+              // Public RPC fallbacks per chain — prefer env vars when set
+              const rpcByChainId: Record<number, string> = {
+                1:        process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL  || 'https://eth.llamarpc.com',
+                10:       process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL  || 'https://mainnet.optimism.io',
+                56:       process.env.NEXT_PUBLIC_BSC_RPC_URL       || 'https://bsc-dataseed.binance.org',
+                137:      process.env.NEXT_PUBLIC_POLYGON_RPC_URL   || 'https://polygon-rpc.com',
+                250:      process.env.NEXT_PUBLIC_FANTOM_RPC_URL    || 'https://rpcapi.fantom.network',
+                8453:     process.env.NEXT_PUBLIC_BASE_RPC_URL      || 'https://mainnet.base.org',
+                42161:    process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL  || 'https://arb1.arbitrum.io/rpc',
+                43114:    process.env.NEXT_PUBLIC_AVALANCHE_RPC_URL || 'https://api.avax.network/ext/bc/C/rpc',
+                11155111: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL   || 'https://rpc.sepolia.org',
+              };
+              // walletClient.chain.id carries the currently connected chain
+              const chainId = (walletClient as { chain?: { id?: number } } | null)?.chain?.id ?? 1;
+              const rpcUrl = rpcByChainId[chainId] ?? rpcByChainId[1];
+              evmProvider = new ethers.JsonRpcProvider(rpcUrl);
+            } catch {
+              // provider creation failed; getUserDomainsFromChain will fall back to mock
+            }
+          }
+          domains = await getUserDomainsFromChain(evmAddress, evmProvider);
+        }
+        // Demo mode fallback
+        else if (!USE_PRODUCTION_MODE && displayAddress) {
+          domains = getMockDomains(displayAddress);
+        }
+
         setUserDomains(domains);
       } catch (error) {
         console.error('Failed to fetch domains:', error);
+        setFetchError('Failed to fetch domains from blockchain. Showing cached data.');
+        
         // Fallback to mock data
-        const mockDomains = getMockDomains(address);
-        setUserDomains(mockDomains);
+        if (displayAddress) {
+          const mockDomains = getMockDomains(displayAddress);
+          setUserDomains(mockDomains);
+        }
       } finally {
         setIsLoading(false);
       }
     };
-    
-    fetchDomains();
-  }, [address, publicClient]);
+
+    if (isConnected) {
+      fetchDomains();
+    } else {
+      setUserDomains([]);
+      setIsLoading(false);
+      setFetchError(null);
+    }
+  }, [solanaWallet.connected, solanaWallet.publicKey, evmConnected, evmAddress, displayAddress, walletClient]);
 
   if (!isConnected) {
     return (
@@ -72,7 +179,9 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">My Domains</h1>
         <p className="text-gray-400">
-          Manage your Web3 domains • Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+          Manage your Web3 domains • Connected: {displayAddress?.slice(0, 6)}...{displayAddress?.slice(-4)}
+          {solanaWallet.connected && <span className="ml-2 text-purple-400">(Solana)</span>}
+          {evmConnected && <span className="ml-2 text-blue-400">(EVM)</span>}
         </p>
         {!USE_PRODUCTION_MODE && (
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-lg">
@@ -80,6 +189,20 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {fetchError && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <span className="text-red-400 text-xl">⚠️</span>
+            <div>
+              <p className="text-red-400 font-semibold mb-1">Fetch Error</p>
+              <p className="text-red-300 text-sm">
+                {fetchError}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-12 text-center">
@@ -110,8 +233,8 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {userDomains.map((domain, idx) => (
-              <DomainCard key={idx} domain={domain} />
+            {userDomains.map((domain) => (
+              <DomainCard key={`${domain.name}${domain.extension}`} domain={domain} />
             ))}
           </div>
 

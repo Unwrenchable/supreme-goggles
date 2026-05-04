@@ -1,0 +1,284 @@
+# Console Warnings and Fixes
+
+This document explains common console warnings you may encounter and how they've been resolved.
+
+## Fixed Issues
+
+### ✅ Phantom Wallet Standard Warning
+
+**Issue**: 
+```
+Phantom was registered as a Standard Wallet. The Wallet Adapter for Phantom can be removed from your app.
+```
+
+**Explanation**:
+Modern versions of Phantom wallet now implement the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) API. This means Phantom automatically registers itself when the page loads, making the explicit `PhantomWalletAdapter` redundant.
+
+**Resolution**:
+- **Removed** `PhantomWalletAdapter` from `lib/solana.ts`
+- **Changed** wallet adapter imports to use individual packages instead of umbrella package
+- Phantom is now **auto-detected** via the Wallet Standard API
+- No functionality is lost - Phantom still works perfectly
+- Eliminates the duplicate registration warning
+
+**Files Changed**:
+- `lib/solana.ts` - Removed PhantomWalletAdapter, switched to individual package imports
+- `components/SolanaWalletProvider.tsx` - Added onError handler, updated documentation
+
+**Benefits**:
+- ✅ No more console warnings
+- ✅ Cleaner code with less explicit dependencies
+- ✅ Follows Solana wallet adapter best practices
+- ✅ Phantom wallet still fully functional
+
+### ✅ Solflare StreamMiddleware Warning
+
+**Issue**:
+```
+StreamMiddleware - Unknown response id "solflare-detect-metamask"
+```
+
+**Explanation**:
+This error appears in the browser DevTools when the Solflare wallet extension is installed alongside MetaMask. On initialisation Solflare sends a JSON-RPC probe message with the id `"solflare-detect-metamask"` to check whether MetaMask is present. MetaMask's `inpage.js` `StreamMiddleware` receives a response for this id but has no matching pending request, so it calls `console.error`. The error is completely harmless — it does not affect wallet connectivity or application behaviour — but it pollutes the developer console.
+
+**Resolution**:
+- Added a targeted `console.error` filter in `components/SolanaWalletProvider.tsx`
+- A `useEffect` patches `console.error` on mount and restores the original on unmount
+- Only messages that contain the literal string `"solflare-detect-metamask"` are silenced — all other errors pass through unchanged
+
+**Files Changed**:
+- `components/SolanaWalletProvider.tsx` — added `useEffect` import and the console filter
+
+**Benefits**:
+- ✅ `solflare-detect-metamask` error no longer appears in the developer console
+- ✅ All genuine errors are still surfaced
+- ✅ Zero impact on wallet connectivity or application functionality
+- ✅ Filter is cleaned up automatically if the component ever unmounts
+
+### ✅ Wallet Connection Rejection Errors
+
+**Issue**:
+```
+WalletConnectionError: User rejected the request.
+```
+
+**Explanation**:
+When users decline a wallet connection request (by clicking "Cancel" or "Reject" in their wallet), the wallet adapter throws a `WalletConnectionError`. Previously, this error was logged to the console as an uncaught error, making it appear as if something went wrong.
+
+**Resolution**:
+- Added `onError` handler to `SolanaWalletProvider` in `components/SolanaWalletProvider.tsx`
+- User rejection errors are now logged as `console.info()` instead of errors
+- Other wallet errors are logged as warnings with helpful context
+- Provides a better developer experience by clearly distinguishing between expected user actions and actual errors
+
+**Benefits**:
+- ✅ No scary error messages when users decline connection
+- ✅ Console remains clean for debugging real issues
+- ✅ Better distinction between user actions and actual errors
+- ✅ Improved error visibility with structured logging
+
+## Understanding Wallet Standards
+
+### Wallet Standard API
+
+The [Wallet Standard](https://github.com/wallet-standard/wallet-standard) is a new specification that:
+
+1. **Unifies wallet detection** across different wallets
+2. **Reduces code complexity** by eliminating explicit adapters
+3. **Improves compatibility** between wallets and dApps
+4. **Auto-detects wallets** when they're installed
+
+### How It Works
+
+```typescript
+// OLD WAY (Explicit Adapters)
+const wallets = [
+  new PhantomWalletAdapter(),  // ❌ No longer needed
+  new SolflareWalletAdapter(), // ✅ Still needed (doesn't use Standard yet)
+  // ... more adapters
+];
+
+// NEW WAY (Auto-Detection + Explicit)
+const wallets = [
+  // Phantom auto-detects via Wallet Standard ✨
+  new SolflareWalletAdapter(), // Still explicit
+  // ... other adapters
+];
+```
+
+### Which Wallets Use Wallet Standard?
+
+As of 2024:
+- ✅ **Phantom** - Fully supports Wallet Standard
+- ⚠️ **Solflare** - Uses legacy adapter (explicit adapter still needed)
+- ⚠️ **Torus** - Uses legacy adapter
+- ⚠️ **Ledger** - Uses legacy adapter
+
+More wallets will adopt the standard over time.
+
+## Common Console Warnings
+
+### indexedDB Not Defined (SSR)
+
+**Warning**:
+```
+ReferenceError: indexedDB is not defined
+```
+
+**Context**: This appears during Next.js build (server-side rendering) in the "Generating static pages" phase
+
+**Explanation**:
+- `indexedDB` is a browser API not available in Node.js
+- Wallet adapters (specifically `@solana/wallet-adapter-react-ui`) try to access it during module initialization
+- This happens during SSR when Next.js pre-renders pages at build time
+- **The build still completes successfully** (exit code 0)
+
+**Impact**: 
+- ✅ **None** - wallets work correctly in the browser
+- ✅ Build completes successfully
+- ✅ All pages generate properly
+- ✅ Application functions normally at runtime
+
+**Why Not Fixed?**:
+This is a known limitation of SSR with browser-only APIs. The wallet adapters are third-party libraries that don't properly check for browser environment. Possible "fixes" have downsides:
+- **Option 1: Mock indexedDB globally** - Can cause unexpected behavior in tests
+- **Option 2: Disable SSR for entire app** - Loses SEO and performance benefits
+- **Option 3: Dynamic import all wallet code** - Increases complexity, doesn't improve UX
+- **Current approach: Accept the warning** - Build succeeds, runtime works perfectly
+
+**Verification**: After deployment, test wallet connections in a browser - they work flawlessly.
+
+**Related**:
+- This is documented in Solana wallet adapter issues
+- Many Web3 projects experience this
+- It's a build-time cosmetic issue only
+
+### WalletConnect QR Code Warnings
+
+**Warning**:
+```
+WalletConnect: QR code modal not available
+```
+
+**Explanation**: Appears when WalletConnect modal isn't loaded yet
+
+**Resolution**: Ensure `WalletModalProvider` wraps your app (already implemented)
+
+## Testing Wallet Connections
+
+After these fixes, test that wallets still work correctly:
+
+### Desktop Testing
+
+1. **Phantom Desktop**:
+   ```
+   ✓ Click "Select Wallet"
+   ✓ Choose Phantom from list
+   ✓ Approve connection in Phantom extension
+   ✓ Verify connection shows in UI
+   ```
+
+2. **Solflare Desktop**:
+   ```
+   ✓ Click "Select Wallet"
+   ✓ Choose Solflare from list
+   ✓ Approve connection in Solflare extension
+   ✓ Verify connection shows in UI
+   ```
+
+### Mobile Testing
+
+1. **Phantom Mobile**:
+   ```
+   ✓ Click "Select Wallet" on mobile
+   ✓ Choose Phantom
+   ✓ Scan QR code with Phantom app
+   ✓ Approve connection
+   ✓ Verify connection in dApp
+   ```
+
+2. **Solflare Mobile**:
+   ```
+   ✓ Click "Select Wallet"
+   ✓ Choose Solflare
+   ✓ Use WalletConnect to connect
+   ✓ Approve in mobile app
+   ```
+
+## Developer Notes
+
+### Adding New Wallets
+
+When adding new Solana wallet support:
+
+1. **Check if wallet supports Wallet Standard**:
+   - If YES: No adapter needed (auto-detects)
+   - If NO: Add explicit adapter
+
+2. **Example** (adding Backpack wallet):
+   ```typescript
+   import { BackpackWalletAdapter } from '@solana/wallet-adapter-wallets';
+   
+   const wallets = [
+     // ... existing wallets
+     new BackpackWalletAdapter(),
+   ];
+   ```
+
+3. **Always test** on both desktop and mobile
+
+### Monitoring Console Warnings
+
+To check for wallet-related warnings in production:
+
+```javascript
+// In browser console
+console.log = (function(oldLog) {
+  return function() {
+    if (arguments[0].includes('Wallet') || arguments[0].includes('wallet')) {
+      oldLog.apply(console, arguments);
+    }
+  };
+})(console.log);
+```
+
+## Best Practices
+
+1. ✅ **Remove adapters for wallets using Wallet Standard**
+2. ✅ **Keep adapters for legacy wallets** (Solflare, Torus, Ledger)
+3. ✅ **Test after removing adapters** to ensure functionality
+4. ✅ **Monitor wallet adapter library updates** for new standard adoptions
+5. ✅ **Document changes** so team understands why adapters are removed
+
+## Related Documentation
+
+- [Wallet Standard Spec](https://github.com/wallet-standard/wallet-standard)
+- [Solana Wallet Adapter Docs](https://github.com/solana-labs/wallet-adapter)
+- [Phantom Developer Docs](https://docs.phantom.app/)
+- [Solflare Developer Docs](https://docs.solflare.com/)
+
+## Changelog
+
+### 2026-03-10
+- ✅ Suppressed `StreamMiddleware - Unknown response id "solflare-detect-metamask"` console error
+- ✅ Added targeted `console.error` filter in `SolanaWalletProvider.tsx` via `useEffect`
+- ✅ Filter is scoped to the exact string — all other errors still surface normally
+
+### 2026-02-05
+- ✅ Added `onError` handler to SolanaWalletProvider for graceful error handling
+- ✅ User rejection errors now logged as info instead of errors
+- ✅ Improved error visibility with structured logging
+- ✅ Changed wallet adapter imports from umbrella package to individual packages
+- ✅ Reduced potential for loading unwanted Phantom adapter code
+- ✅ Better developer experience when debugging wallet issues
+
+### 2024-02-03
+- ✅ Removed PhantomWalletAdapter (now uses Wallet Standard)
+- ✅ Updated documentation in lib/solana.ts
+- ✅ Updated SolanaWalletProvider.tsx comments
+- ✅ Verified build completes successfully
+- ✅ Phantom wallet still fully functional
+
+---
+
+**Need Help?** Check the [MOBILE_WALLET_GUIDE.md](./MOBILE_WALLET_GUIDE.md) for wallet connection troubleshooting.

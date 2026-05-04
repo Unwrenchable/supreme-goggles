@@ -61,30 +61,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="bg-gradient-to-r from-slate-900/50 to-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-12 text-center mb-12">
-        <div className="grid md:grid-cols-3 gap-12">
-          <div>
-            <div className="text-5xl font-bold text-transparent bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text mb-2">
-              10,000+
-            </div>
-            <div className="text-slate-400 font-medium">Domains Registered</div>
-          </div>
-          <div>
-            <div className="text-5xl font-bold text-transparent bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text mb-2">
-              5,000+
-            </div>
-            <div className="text-slate-400 font-medium">Active Users</div>
-          </div>
-          <div>
-            <div className="text-5xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text mb-2">
-              99.9%
-            </div>
-            <div className="text-slate-400 font-medium">Platform Uptime</div>
-          </div>
-        </div>
-      </div>
-
       {/* Supported Chains */}
       <div className="bg-slate-900/30 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-8 text-center">
         <h3 className="text-2xl font-bold text-white mb-6">Supported Blockchains</h3>

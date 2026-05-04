@@ -1,0 +1,9 @@
+[programs.devnet]
+supreme_goggles = "6TYgZUksdPpdrZAHs1FeDN9QKcJGCwovEwHSY4ncCuSy"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test-bpf"

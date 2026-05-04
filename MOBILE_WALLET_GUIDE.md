@@ -31,13 +31,14 @@ AtomicFizzCaps Universal Naming Service now supports seamless mobile wallet conn
 - **Trust Wallet** - Multi-chain mobile wallet
 - **Rainbow Wallet** - User-friendly Ethereum wallet  
 - **Coinbase Wallet** - Coinbase's self-custody wallet
-- **Phantom** - Supports EVM chains via WalletConnect (Note: Native Solana not yet supported)
+- **Phantom** - Supports both native Solana and EVM chains (full support!)
 - **Ledger Live** - Hardware wallet companion app
 - **SafePal** - Secure multi-chain wallet
 - **And 300+ other wallets** - Any WalletConnect-enabled app
 
-**EVM Wallet Features:**
+**EVM & Solana Wallet Features:**
 - Support for all configured EVM chains (Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, Avalanche, Fantom)
+- **Native Solana support** for registering .fizz, .sol, and other Solana domains
 - Connect using WalletConnect QR codes
 - Perfect for .eth, .crypto, and other EVM-based domain registrations
 - NFT and token management
